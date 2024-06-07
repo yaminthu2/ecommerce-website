@@ -35,7 +35,9 @@ async def upload_image(name:str=Form(...),file:UploadFile=File(...)):
         f.write(file_read)
     database_path=os.path.join(image_dir,file.filename)
     image_collection.insert_one({"name":name,"checksum":checksum,"img_url":database_path})
+    print("Testing")
     return{"detail":"Successful image upload"}
+   
    
 
 

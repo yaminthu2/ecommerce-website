@@ -30,6 +30,7 @@ def get_all_data(user_id=Depends(user_data)):
     for data in cursor_obj:
         data["_id"]=str(data["_id"])
         datas.append(data)
+        print("Testing")
     return datas
     
 

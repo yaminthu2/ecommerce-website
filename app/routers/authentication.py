@@ -68,6 +68,7 @@ def valid_password(password):
     
     if len(password)<8:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Enter at least eight character for  password")
+    print("Testing")
 
 #middleware   
 def user_data(request:Request):
