@@ -10,7 +10,7 @@ try:
     category_collection=db["category"]
     product_collection=db["products"]
     image_collection=db["images"]
-    print("Testing")
+   
 
 
 

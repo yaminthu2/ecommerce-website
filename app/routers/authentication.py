@@ -1,7 +1,6 @@
 from fastapi import HTTPException,status,APIRouter,Request,Depends
 from pydantic import BaseModel,field_validator
 from app.database.mongodb import collection
-# import email_validator
 import re
 from argon2 import PasswordHasher
 import jwt
@@ -68,7 +67,7 @@ def valid_password(password):
     
     if len(password)<8:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Enter at least eight character for  password")
-    print("Testing")
+    
 
 #middleware   
 def user_data(request:Request):
@@ -148,10 +147,8 @@ def get_login(login:Login):
     return {"detail":"Successful Login","token":token}
 
 
-@route.patch("/change_password")
+@route.patch("/change-password")
 def change_password(changePassword:ChangePassword,user_id=Depends(user_data)):
-
-    # changePassword=get_strip(changePassword)
 
     changePassword=changePassword.model_dump()
     
@@ -161,9 +158,6 @@ def change_password(changePassword:ChangePassword,user_id=Depends(user_data)):
     
     if not changePassword["email"]==collect_user["email"]:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Invalid email")
-
-    # if not collect_database:
-        # raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Invalid Email")
         
     try:
         

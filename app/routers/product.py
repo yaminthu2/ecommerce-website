@@ -32,7 +32,7 @@ class Products(BaseModel):
 def get_create_product(product:Products,user=Depends(user_data)):
     product=product.model_dump()
     product_collection.insert_one(product)
-    print("Testing")
+    
     return{"detail":"Successful create product"}
     
 
