@@ -1,15 +1,15 @@
 from fastapi import APIRouter,status,HTTPException,Depends
 from pydantic import BaseModel,field_validator
-from ..database.mongodb import category_collection
-from bson import ObjectId
+from ..database.mongodb import category_collection,image_collection
+from bson import ObjectId,DBRef
 from .authentication import user_data
 
 route=APIRouter()
 
 class ParentCategory(BaseModel):
     name:str
-    parent_id:str=""
-    image_id:str
+    parent:str=None
+    image:str
 
     @field_validator("*")
     def get_strip(cls,value):
@@ -17,34 +17,56 @@ class ParentCategory(BaseModel):
         
 # create category data 
 @route.post("/",status_code=status.HTTP_201_CREATED)
-def parent_category(category:ParentCategory,user=Depends(user_data)):
+def carete_category(category:ParentCategory,user_id=Depends(user_data)):
    category=category.model_dump()
-   category_collection.insert_one(category)
-   return{"detail":"Successful insert data"}
+   if category["parent"]:
+       category["parent"]= DBRef("categories",ObjectId(category["parent"]),"ecommerce")
+   category["image"]=DBRef("images",ObjectId(category["image"]),"ecommerce")
+   
+   result=category_collection.insert_one(category)
+   category["_id"]=str(result.inserted_id)
+   return {"_id":category["_id"]}
 
-#take all data 
+
+    
+#    return{"detail":"Successful insert data"}
+
+#find all data 
 @route.get("/",status_code=status.HTTP_200_OK)
 def get_all_data(user_id=Depends(user_data)):
     cursor_obj=category_collection.find({})
     datas=[]
     for data in cursor_obj:
         data["_id"]=str(data["_id"])
+       
+        
+        # derefrence the parent
+        if isinstance(data.get("parent"), DBRef):
+            parent_category = category_collection.find_one({"_id": data["parent"].id})
+            data["parent"] = {"_id": str(parent_category["_id"]), "name": parent_category["name"]} if parent_category else None
+
+        # Dereference the image field
+        if isinstance(data.get("image"), DBRef):
+            image_document = image_collection.find_one({"_id": data["image"].id})
+            print(image_document)
+           
+            data["image"] = {"_id": str(image_document["_id"]),"name":image_document["name"], "checksum":image_document["checksum"],"img_url": image_document["img_url"]} if image_document else None
+
         datas.append(data)
-        print("Testing")
     return datas
     
 
 
 @route.get("/parentId",status_code=status.HTTP_200_OK)
-def get_parent_id(user_id=Depends(user_data)):
-    cursor_obj=category_collection.find({"parent_id":""})
+def get_parent(user_id=Depends(user_data)):
+    cursor_obj=category_collection.find({"parent":""})
     datas=[]
     for data in cursor_obj:
         data["_id"]=str(data["_id"])
         datas.append(data)
     return datas
     
-#take one data
+#find one data
 @route.get("/{id}",status_code=status.HTTP_200_OK)
 def get_one_data(id:str,user_id=Depends(user_data)):
     id=id.strip()
@@ -57,6 +79,8 @@ def get_one_data(id:str,user_id=Depends(user_data)):
     object_id["_id"]=str(object_id["_id"])
     return object_id
 
+
+#product update
 @route.put("/{id}",status_code=status.HTTP_200_OK)
 def update(id:str,data:ParentCategory,user_id=Depends(user_data)):
     id=id.strip()
