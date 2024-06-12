@@ -3,6 +3,7 @@ import os
 from ..database.mongodb import image_collection
 import hashlib
 from datetime import datetime
+from bson import ObjectId
 
 
 route=APIRouter()
@@ -23,11 +24,11 @@ async def upload_image(name:str=Form(...),file:UploadFile=File(...),category:str
     file_read=await file.read()
     checksum=hashlib.md5(file_read).hexdigest()
     image_document=image_collection.find_one({"checksum":checksum})
-    if image_document:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Duplicate image file")
-    
+    # if image_document:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail="Duplicate image file")
+     
     if category:
         file_path=category_dir
     elif product:
@@ -47,14 +48,38 @@ async def upload_image(name:str=Form(...),file:UploadFile=File(...),category:str
     with open(file_location,"wb") as f:
         f.write(file_read)
     database_path=os.path.join(file_path,new_filename)
-    image_collection.insert_one({"name":name,"checksum":checksum,"img_url":database_path})
-    return{"detail":"Successful image upload"}
+    image=image_collection.insert_one({"name":name,"checksum":checksum,"img_url":database_path})
+    return {"id":str(image.inserted_id)}
+
+    # return{"detail":"Successful image upload"}
+
+#find all images
+@route.get("/")
+def get_all_images():
+    cursor_obj=image_collection.find({})
+    images=[]
+    for image in cursor_obj:
+        image["_id"]=str(image["_id"])
+        images.append(image)
+    return images
+
+@route.get("/{id}")
+def get_one_image(id:str):
+    image=image_collection.find_one({"_id":ObjectId(id.strip())})
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invalid image Id")
+
+    image["_id"]=str(image["_id"])
+    return image
    
-   
+@route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
+def delete(id:str):
+    image=image_collection.find_one_and_delete({"_id":ObjectId(id.strip())})
+    if image==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Invalid image Id")
 
 
-
-   
-        
 
     
