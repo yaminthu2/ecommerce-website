@@ -94,14 +94,14 @@ def user_data(request:Request):
             detail="Unauthorized ")
     token_type=token[0]
     token_value=token[1]
+    
     if token_type!="Bearer": # check the type /that mean Bearer instand of another token/ this error occur
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized token")
-
-    payload=jwt.decode(token_value,"website",algorithms=["HS256"]) #jwt decode ss
-
+    payload=jwt.decode(token_value,"website",algorithms=["HS256"]) #jwt decode 
     user_data=collection.find_one({"_id":ObjectId(payload.get("_id"))}) #from users database
+
     if not user_data or not user_data.get("is_login") : #not user or  login is false /this error occur
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -110,8 +110,6 @@ def user_data(request:Request):
 
 @route.post("/register")
 def registration(register:Register):
-
-    
     register=register.model_dump()
     if register["username"]==None:
         raise HTTPException(
@@ -122,7 +120,6 @@ def registration(register:Register):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="username error")
-
 
     is_user=collection.find_one({"username":register["username"]})
     if is_user:
@@ -145,7 +142,6 @@ def registration(register:Register):
             detail=" existing email")
     
     valid_password(register["password"])
-
     pass_hash=PasswordHasher()
     register["password"]=pass_hash.hash(register["password"])
     user_document=collection.insert_one(register)
@@ -156,8 +152,6 @@ def registration(register:Register):
 
 @route.post("/login")
 def get_login(login:Login):   
-
-    # login=get_strip(login)
     login=login.model_dump()
     user_document=collection.find_one({"email":login["email"]})
     if user_document==None:
@@ -174,17 +168,13 @@ def get_login(login:Login):
     collection.update_one({"_id":user_document["_id"]},{"$set":{"is_login":True}})
     payload={"_id":str(user_document["_id"])}
     token=jwt.encode(payload,"website",algorithm="HS256")
-    
     return {"detail":"Successful Login","token":token}
 
 
 @route.patch("/change-password")
 def change_password(changePassword:ChangePassword,user_id=Depends(user_data)):
-
     changePassword=changePassword.model_dump()
-    
     valid_password(changePassword["new_password"])
-    
     collect_user=collection.find_one({"_id":ObjectId(user_id["_id"])})
     
     if not changePassword["email"]==collect_user["email"]:
@@ -205,7 +195,6 @@ def change_password(changePassword:ChangePassword,user_id=Depends(user_data)):
     
 @route.get("/logout",status_code=status.HTTP_200_OK)
 def logout(user_id=Depends(user_data)):
-    
     collection.update_one({"_id":ObjectId(user_id["_id"])},{"$set":{"is_login":False}})
     return{"detail":"Successful logout"}
 

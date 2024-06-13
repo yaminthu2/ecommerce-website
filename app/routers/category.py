@@ -27,7 +27,6 @@ def carete_category(category:Category,user=Depends(user_data)):
    
    result=category_collection.insert_one(category)
    category["_id"]=str(result.inserted_id)
-#    return {"_id":category["_id"]}
    return{"detail":"Successful create category"}
 
 #find all categories 
@@ -83,7 +82,6 @@ def update(id:str,data:Category,user=Depends(user_data)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Please must be enter 24 character Id")
-   
     data=data.model_dump()
     if data["parent"]:
         data["parent"]=DBRef("categories",ObjectId(data["parent"]),"ecommerce")
@@ -99,7 +97,6 @@ def update(id:str,data:Category,user=Depends(user_data)):
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete(id:str,user=Depends(user_data)):
     category=category_collection.find_one({"_id":ObjectId(id.strip())})
-
     if category==None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -5,7 +5,6 @@ import hashlib
 from datetime import datetime
 from bson import ObjectId
 
-
 route=APIRouter()
 
 file_dir="static"
@@ -24,10 +23,10 @@ async def upload_image(name:str=Form(...),file:UploadFile=File(...),category:str
     file_read=await file.read()
     checksum=hashlib.md5(file_read).hexdigest()
     image_document=image_collection.find_one({"checksum":checksum})
-    # if image_document:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT,
-    #         detail="Duplicate image file")
+    if image_document:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Duplicate image file")
      
     if category:
         file_path=category_dir
@@ -50,8 +49,6 @@ async def upload_image(name:str=Form(...),file:UploadFile=File(...),category:str
     database_path=os.path.join(file_path,new_filename)
     image=image_collection.insert_one({"name":name,"checksum":checksum,"img_url":database_path})
     return {"id":str(image.inserted_id)}
-
-    # return{"detail":"Successful image upload"}
 
 #find all images
 @route.get("/")

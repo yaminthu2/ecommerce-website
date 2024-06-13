@@ -10,6 +10,7 @@ try:
     category_collection=db["categories"]
     product_collection=db["products"]
     image_collection=db["images"]
+    cart_collection=db["carts"]
    
 
 
