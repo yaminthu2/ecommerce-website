@@ -1,0 +1,87 @@
+API
+
+14.6.2024
+
+1.check the product id
+2.not product 
+3.not enough stock 
+4.calculate price 
+
+#in the database 
+customer id 
+product id with dbref
+quantity
+total price 
+
+
+15.6.2024
+  
+
+1.customer more item product(same product)
+2.check  user or not (finished)
+3.check old product or not (finished)
+4.change quantity(finished)
+
+
+
+#in the database 
+
+1.need to sub item of product collection (finished)
+2.need to change quantity  (finished)
+3.nedd to change price  (finished)
+
+17.6.2024
+
+1.not same product/ same user 
+
+#in the database 
+1.need to sub product item 
+2.need to price true or not 
+3.check the quantity
+
+
+#ui 
+
+1. create register for ui 
+2.connect to backend register
+
+icon link => https://ionic.io/ionicons
+
+
+19.6.2024
+1. create login  for ui
+2. create logout for ui
+2. connect backend 
+3. fix the design
+
+20.6.2024
+
+1.income data type from ui is not the same api receive data type  (register) finished
+2.row nav bar  finished
+
+21.6.2024
+1. add to cart(chose the customer want and then item reduce or not)  /// 1. create add to cart for tempory storage for user is choosing a product 
+                                                                        2. if the user is finished your shopping , add of the cart 
+                                                                        3. go to the database for store the 
+2. if customer finished , stored the database 
+
+
+22.6.2024 and 23.6.2024
+1.add to cart  (backend)
+2. cart  (backend)
+3. checkout (backend)
+4. database strusture 
+
+
+24.6.2024
+1.create menu bar 
+2. that time hover categories  , appear block other categories and product 
+3. raw scroll bar
+
+
+25.6.2024
+1. index.html (ui trying ) and css file
+2. navbar 
+3. header
+4. 
+ 

@@ -4,6 +4,7 @@ from ..database.mongodb import image_collection
 import hashlib
 from datetime import datetime
 from bson import ObjectId
+from pydantic import BaseModel
 
 route=APIRouter()
 

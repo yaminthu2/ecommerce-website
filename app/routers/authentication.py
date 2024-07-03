@@ -1,22 +1,37 @@
-from fastapi import HTTPException,status,APIRouter,Request,Depends
-from pydantic import BaseModel,field_validator
+from fastapi import HTTPException,status,APIRouter,Request,Depends,Form
+from pydantic import BaseModel,field_validator,Field
 from app.database.mongodb import collection
 import re
 from argon2 import PasswordHasher
 import jwt
 from bson import ObjectId
-    
+from fastapi.responses import HTMLResponse
+from fastapi_csrf_protect import CsrfProtect
+from fastapi_csrf_protect.exceptions import CsrfProtectError
+from fastapi.templating import Jinja2Templates
 
+templates=Jinja2Templates(directory="app/templates")
 route=APIRouter()
+
+
 class Register(BaseModel):
     username:str
-    password:str
     email:str
+    password:str
     is_login:bool=True
-
     @field_validator("username","password","email")
     def get_strip(cls,value):
         return value.strip()
+    @classmethod
+    def register_form_data(cls,username: str = Form(...), email: str = Form(...), password: str = Form(...)):\
+        return cls(username=username, email=email, password=password)
+        
+        # return{
+        #     "username":username,
+        #     "email":email,
+        #     "password":password
+        # }
+   
 
 class Login(BaseModel):
     email:str
@@ -25,16 +40,33 @@ class Login(BaseModel):
     @field_validator("*")
     def login_strip(cls,value):
         return value.strip()
+    @classmethod
+    def login_form_data(cls,email: str = Form(...), password: str = Form(...)):
+        return cls(email=email,password=password)
+        # return{
+        #     "email":email,
+        #     "password":password
+        # }
 
 
 class ChangePassword(BaseModel):
-    email:str
-    password:str
-    new_password:str
+    email:str 
+    password:str 
+    new_password:str 
 
     @field_validator("*")
     def change_password_strip(cls,value):
         return value.strip()
+    @classmethod
+    def change_password_form_data(cls,email: str = Form(...), password: str = Form(...), new_password: str = Form(...)):
+        
+         return{
+            "email":email,
+            "password":password,
+            "new_password":new_password
+        }
+
+
 
 def check_email(email):
     regex='[\w\.-]+@[\w\.-]+\.\w{2,4}'
@@ -43,44 +75,30 @@ def check_email(email):
    
 
 def valid_password(password):
-    upper_letter='(?=.*?[A-Z])'
-    search_password=re.search(upper_letter,password)
-    if search_password==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Enter at least one upper case for  password")
-    
-    lower_letter='(?=.*?[a-z])'
-    search_password=re.search(lower_letter,password)
-    if search_password==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Enter at least one lower case for  password")
-    
-    digit='(?=.*?[0-9])'
-    search_password=re.search(digit,password)
-    if search_password==None:
-        raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Enter at least one 0 to 9 for  password")
+    upper_letter = r'(?=.*?[A-Z])'
+    lower_letter = r'(?=.*?[a-z])'
+    digit = r'(?=.*?[0-9])'
+    special_character = r'(?=.*?[#?!@$%^&*-])'
 
+    if not re.search(upper_letter, password):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enter at least one upper case for password")
 
-    special_chacter='(?=.*?[#?!@$%^&*-])'
-    search_password=re.search(special_chacter,password)
-    if search_password==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Enter at least one special character for  password")
-    
-    if len(password)<8:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Enter at least eight character for  password")
-    
+    if not re.search(lower_letter, password):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enter at least one lower case for password")
+
+    if not re.search(digit, password):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enter at least one digit for password")
+
+    if not re.search(special_character, password):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enter at least one special character for password")
+
+    if len(password) < 8:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enter at least eight characters for password")
+
 
 #middleware   
 def user_data(request:Request):
-    bearer_token=request.headers.get("Authorization")
+    bearer_token=request.cookies.get("Authorization")or request.headers.get("Authorization")
 
     if bearer_token==None:  #bearer token include key and value
         raise HTTPException(
@@ -108,96 +126,137 @@ def user_data(request:Request):
             detail="Unauthorized user")
     return payload
 
+
+# Middleware to check the method override
+async def check_method(request: Request):
+    form_data = await request.form()
+    method = form_data.get('_method')
+    if method:
+        request._method = method.upper()
+    return request
+
+
 @route.post("/register")
-def registration(register:Register):
-    register=register.model_dump()
-    if register["username"]==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Invalid username")
-    
-    if len(register["username"].split())>1:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="username error")
-
-    is_user=collection.find_one({"username":register["username"]})
-    if is_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Existing username")
-    
-    is_email=check_email(register["email"])
-
-    if is_email==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=" please enter the email format")
-    
-    is_email=collection.find_one({"email":register["email"]})
-
-    if is_email:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=" existing email")
-    
-    valid_password(register["password"])
-    pass_hash=PasswordHasher()
-    register["password"]=pass_hash.hash(register["password"])
-    user_document=collection.insert_one(register)
-    payload={"_id":str(user_document.inserted_id)}
-    token=jwt.encode(payload,"website",algorithm="HS256")
-    return{"message":"Successful Register","token":token}
-
-
-@route.post("/login")
-def get_login(login:Login):   
-    login=login.model_dump()
-    user_document=collection.find_one({"email":login["email"]})
-    if user_document==None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=" Invalid credentials")
+async def registration(request: Request, register: Register = Depends(Register.register_form_data)):
     try:
-        PasswordHasher().verify(user_document["password"],login["password"])
-    except:  
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Invalid credentials")
-    
-    collection.update_one({"_id":user_document["_id"]},{"$set":{"is_login":True}})
-    payload={"_id":str(user_document["_id"])}
-    token=jwt.encode(payload,"website",algorithm="HS256")
-    return {"detail":"Successful Login","token":token}
+        if not register.username:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Invalid username")
 
+        if len(register.username.split()) > 1:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username error")
 
-@route.patch("/change-password")
-def change_password(changePassword:ChangePassword,user_id=Depends(user_data)):
-    changePassword=changePassword.model_dump()
-    valid_password(changePassword["new_password"])
-    collect_user=collection.find_one({"_id":ObjectId(user_id["_id"])})
-    
-    if not changePassword["email"]==collect_user["email"]:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Invalid email")
-        
+        is_user = collection.find_one({"username": register.username})
+        if is_user:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Existing username")
+
+        is_email = check_email(register.email)
+        if not is_email:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Please enter the email format")
+
+        is_email = collection.find_one({"email": register.email})
+        if is_email:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Existing email")
+
+        valid_password(register.password)
+        pass_hash = PasswordHasher()
+        register.password = pass_hash.hash(register.password)
+        user_document = collection.insert_one(register.model_dump())
+        payload = {"_id": str(user_document.inserted_id)}
+        token = jwt.encode(payload, "website", algorithm="HS256")
+
+        html_content = """
+        <html>
+            <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
+        </html>
+        """
+
+        response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+        response.set_cookie(key="authorization", value=f"bearer {token}", httponly=True)
+        return response
+
+    except HTTPException as e:
+        # preserve form data
+        form_data = {"username": register.username, "email": register.email} 
+        return templates.TemplateResponse("register.html", {"request": request,"form_data": form_data, "error_message": e.detail})
+
+@route.post("/login")   
+def login(request:Request,login:Login=Depends(Login.login_form_data)):
     try:
+        user_document=collection.find_one({"email":login.email})
+        if user_document==None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=" Invalid email")
+        try:
+            PasswordHasher().verify(user_document['password'],login.password)
+        except: 
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Invalid password")
         
-        PasswordHasher().verify(collect_user["password"],changePassword["password"])
-        changePassword["new_password"]=PasswordHasher().hash(changePassword["new_password"])
-        collection.update_one({"email":changePassword["email"]},{"$set":{"password":changePassword["new_password"]}})
-        return {"message":"Successful change password"}
-    except:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Invalid password")
+        collection.update_one({"_id":user_document["_id"]},{"$set":{"is_login":True}})
+        payload={"_id":str(user_document["_id"])}
+        token=jwt.encode(payload,"website",algorithm="HS256")
+        html_content = f"""
+        <html>
+            <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
+        </html>
+        """
+
+        response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+        response.set_cookie(key="authorization", value=f"bearer {token}", httponly=True)
+        return response
+    except HTTPException as e:
+        return templates.TemplateResponse("login.html", {"request":request,"error_message": e.detail})
+    
+@route.post("/change-password", dependencies=[Depends(check_method)])
+async def change_password(request: Request,changePassword:ChangePassword.change_password_form_data=Depends(),user_id=Depends(user_data)):
+    try:
+        if request._method != "PATCH":
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Method not allowed")
+    
+        valid_password(changePassword["new_password"])
+        user_document = collection.find_one({"email": changePassword["email"]})
+        if user_document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="user not found"
+            )
+
+        try:
+            PasswordHasher().verify(user_document["password"], changePassword["password"])
+            new_hashed_password = PasswordHasher().hash(changePassword["new_password"])
+            collection.update_one({"email": changePassword["email"]}, {"$set": {"password": new_hashed_password}})
+            # return {"message": "Successful change password"}
+            html_content = f"""
+            <html>
+            <meta http-equiv="refresh" content="0;url=http://localhost:8000/login"">
+            </html>
+            """
+            response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+            response.set_cookie(key="message",value="successful change password",httponly=True)
+            return response
+
+        except:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Invalid password"
+            )
+    except HTTPException as e:
+        return templates.TemplateResponse("changepassword.html", {"request":request,"error_message": e.detail})
     
 @route.get("/logout",status_code=status.HTTP_200_OK)
 def logout(user_id=Depends(user_data)):
     collection.update_one({"_id":ObjectId(user_id["_id"])},{"$set":{"is_login":False}})
-    return{"detail":"Successful logout"}
+    html_content = f"""
+    <html>
+        <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
+    </html>
+    """
+    response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK) 
+    return response
+    
 
 
     
-    
+

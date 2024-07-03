@@ -1,0 +1,61 @@
+
+
+{% extends 'base.html' %}
+{% block head %}
+    <meta http-equiv="Authorization" content="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjdlNzE3ZWQ5M2MyMjY3ODM3NjlmNjYifQ.xnjcMuGChMc0957-99rAUYT1BPuzlHIhxKoKoqsX2vk">
+{% endblock %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="/static/css/testing.css">
+
+<div class="container">
+    <div class="login-box">
+        <form method="post" action="/api/login" id="loginForm">
+            
+            <div class="input-box">
+                <span class="icon"><ion-icon name="mail-unread"></ion-icon></span>
+                <input type="email" id="email" name="email" required>
+                <label for="email">Email</label>
+            </div>
+            <div class="input-box">
+                <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                <input type="password" name="password" id="password" required>
+                <label for="password">Password</label>
+            </div>
+            <div class="change-password">
+                <a href="/change-password">change password?</a>
+            </div>
+            <button type="submit">Sign In</button>
+            <div class="register-link">
+                <p>Don't have an accouont?<a href="/register">Singn Up</a></p>
+            </div>
+        </form>
+        <!-- Add error message display logic here -->
+        <div id="error-message" class="error-message">
+            {% if error_message %}
+                <p>{{ error_message }}</p>
+            {% endif %}
+        </div>
+    </div>
+  
+</div>
+
+
+<!-- ionicorn js link -->
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

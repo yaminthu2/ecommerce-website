@@ -72,8 +72,6 @@ def get_one_category(id:str,user=Depends(user_data)):
     category["image"]=image_derefrence(category["image"])
     return category
 
-
-
 #category update
 @route.put("/{id}",status_code=status.HTTP_200_OK)
 def update(id:str,data:Category,user=Depends(user_data)):

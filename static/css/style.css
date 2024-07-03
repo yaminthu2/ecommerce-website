@@ -1,0 +1,160 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    overflow-y: scroll;
+}
+::-webkit-scrollbar {
+  /* Style the scrollbar */
+  
+  width: 5px;
+  height: 5px;
+  background-color: #4b4141;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  /* Style the scrollbar thumb */
+
+  background-color: #580f0f;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-track {
+  /* Style the scrollbar track */
+  background-color: #1d2935;
+  border-radius: 1px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+nav {
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #fff;
+}
+
+.menu-item {
+    position: relative;
+}
+
+.menu-item > a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration:none;
+    color: #000;
+    font-weight: bold;
+}
+
+.menu-item:hover .dropdown {
+    display: flex;
+}
+
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+    width: 450px;
+}
+
+.column {
+    flex: 1;
+    padding: 20px;
+    min-width: 100px;
+    column-gap: 2px;    
+}
+
+.column h3 {
+    
+    margin-top: 0;
+    font-size: 16px;
+    color: #b62d41;
+    font-weight: bold;
+}
+
+.column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.column ul li {
+    margin-bottom: 10px;
+}
+
+.column ul li a {
+    text-decoration: none;
+    color: #000;
+}
+
+
+/* for header */
+.column ul li a:hover {
+    color: #ac606b;
+    text-decoration: underline;
+}
+
+p{
+    width: 10px;
+    height: 200px;
+}
+ /* for navbar hover */
+nav ul li a:hover{
+    color: #580f0f;
+    text-decoration: underline;
+    margin-bottom: 5px;
+    transition: .5s;
+}
+header .container{
+    display: flex;
+    justify-content: space-between;
+}
+.column {
+    text-align: center;
+}
+
+.column img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+}
+
+button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* for login */
+.login{
+    
+    margin-left: auto;
+}

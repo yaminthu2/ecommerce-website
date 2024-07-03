@@ -1,13 +1,16 @@
-from fastapi import APIRouter,status,Depends,HTTPException
+from fastapi import APIRouter,status,Depends,HTTPException,Request
 from pydantic import BaseModel,field_validator
 from .authentication import user_data
 from ..database.mongodb import product_collection
 from bson import ObjectId,DBRef
 from ..utilities.derefrence import category_derefrence,image_derefrence
 
+
 route=APIRouter()
 
-class Product(BaseModel):
+
+
+class Products(BaseModel):
     name:str
     category:str
     description:str
@@ -31,8 +34,8 @@ class Product(BaseModel):
 
 #create product data
 @route.post("/",status_code=status.HTTP_201_CREATED)
-def get_create_product(product:Product,user=Depends(user_data)):
-    product=product.model_dump()
+def get_create_product(products:Products,user=Depends(user_data)):
+    product=products.model_dump()
     product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
     images_dbref=[]
     for image in product["images"]:
@@ -45,7 +48,7 @@ def get_create_product(product:Product,user=Depends(user_data)):
 
 # find all products 
 @route.get("/",status_code=status.HTTP_200_OK)
-def get_all_products(user=Depends(user_data)):
+def get_all_products():
    cursor_obj=product_collection.find({})
    products_document=[]
    for document in cursor_obj:
@@ -58,6 +61,7 @@ def get_all_products(user=Depends(user_data)):
         document["images"]=images
         products_document.append(document)
    return products_document
+        
 
 #find one product document
 @route.get("/{id}",status_code=status.HTTP_200_OK)  
@@ -77,8 +81,8 @@ def get_one_product(id:str,user=Depends(user_data)):
 
 #product update  
 @route.put("/{id}",status_code=status.HTTP_200_OK)
-def update(id:str,product:Product,user=Depends(user_data)):
-    product=product.model_dump()
+def update(id:str,products:Products):
+    product=products.model_dump()
     product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
     images=[]
     for image in product["images"]:
@@ -91,7 +95,7 @@ def update(id:str,product:Product,user=Depends(user_data)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid product Id")
     return{"detail":"Successful product update"}
-
+                       
 #product delete
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)  
 def delete(id:str,user=Depends(user_data)):

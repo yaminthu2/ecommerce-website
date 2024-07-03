@@ -1,0 +1,87 @@
+ {% extends 'base.html' %}
+ {% block content %}
+
+ <div class="container">
+     <h1 class="mt-5">{{ product.name }}</h1>
+     <div class="row">
+         <div class="col-md-6">
+             <!-- Carousel for multiple images -->
+             <div id="carouselProductImages" class="carousel slide" data-ride="carousel">
+                 <div class="carousel-inner">
+                     {% if product.images %}
+                         {% for image in product.images %}
+                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+                                 <img class="d-block w-100" src="/static/{{ image.img_url }}" alt="Product image">
+                             </div>
+                        {% endfor %}
+                     {% else %}
+                         <div class="carousel-item active">
+                             <img class="d-block w-100" src="/static/placeholder.png" alt="Placeholder image">
+                         </div>
+                     {% endif %}
+                 </div>
+                 <!-- Controls -->
+                 <a class="carousel-control-prev" href="#carouselProductImages" role="button" data-slide="prev">
+                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                     <span class="sr-only">Previous</span>
+                 </a>
+                 <a class="carousel-control-next" href="#carouselProductImages" role="button" data-slide="next">
+                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                 </a>
+             </div>
+         </div>
+         <div class="col-md-6">
+             <h3>Description</h3>
+             <p>{{ product.description }}</p>
+             <h3>Price: {{ product.price }} Ks</h3>
+             <div class="quantity-controls">
+                 <button class="btn btn-secondary" onclick="updateQuantity(-1)">-</button>
+                 <input type="number" id="quantity" value="1" min="1" class="form-control d-inline-block w-auto">
+                 <button class="btn btn-secondary" onclick="updateQuantity(1)">+</button>
+             </div>
+             <button class="btn btn-primary mt-3" onclick="addToCart('{{ product._id }}')">Add to Cart</button>
+         </div>
+     </div>
+ </div>
+
+ <script>
+     function updateQuantity(change) {
+         let quantityInput = document.getElementById('quantity');
+         let currentQuantity = parseInt(quantityInput.value);
+         if (currentQuantity + change >= 1) {
+             quantityInput.value = currentQuantity + change;
+         }
+     }
+    
+     function addToCart(productId) {
+         let quantity = parseInt(document.getElementById('quantity').value);
+         for (let i = 0; i < quantity; i++) {
+             fetch(`/api/cart/add-to-cart`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({ product_id: productId,quantity:quantity}),
+             })
+             .then(response => response.json())
+             .then(data => {
+                // console.log(data)
+                 if (data.test === true) {
+                     alert('Cart updated successfully!');
+                 } else {
+                     alert('Error updating cart.');
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 alert('Error updating cart 1.');
+            });
+         }
+     }
+     </script>
+
+
+{% endblock %}
+
+
