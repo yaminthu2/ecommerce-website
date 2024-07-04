@@ -73,8 +73,9 @@ body {
 
 /* for homepage */
 #hero {
-    background-image: url(/static/assets/category/image17-25-Jun-2024-02:02PM.jpg);
-    width: 100%; 
+    /* background-color: red !important; */
+    background-image: url("/static/assets/123.jpg");
+    width: 100vw; 
     height: 90vh;
     background-size: cover;
     background-position: top 25% right 0;
@@ -94,10 +95,11 @@ body {
 
 #hero h1 {
     color: #088178;
+    
 }
 
 #hero button {
-    background-image: url(/static/assets/product/image27-25-Jun-2024-04:24PM.jpg);
+    /* background-image: url(/static/assets/image17-04-Jul-2024-01:34PM.jpg); */
     background-color: transparent;
     color: #088178;
     border: 0;

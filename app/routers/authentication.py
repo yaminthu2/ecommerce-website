@@ -10,8 +10,8 @@ from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from fastapi.templating import Jinja2Templates
 
-templates=Jinja2Templates(directory="app/templates")
 route=APIRouter()
+templates=Jinja2Templates(directory="app/templates")
 
 
 class Register(BaseModel):
@@ -234,7 +234,7 @@ async def change_password(request: Request,changePassword:ChangePassword.change_
             </html>
             """
             response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
-            response.set_cookie(key="message",value="successful change password",httponly=True)
+            # response.set_cookie(key="message",value="successful change password",httponly=True)
             return response
 
         except:

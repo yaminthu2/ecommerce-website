@@ -2,44 +2,16 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="/static/css/test.css">
+
 
    
-    <section id="hero">
+    <section id="hero" >
         <h4>Myanmar</h4>
         <h2>traditional dress design</h2>
         <h1>On all products</h1>
-        <!-- <p>Save more with coupons & up to 70% off!</p> -->
         <button>Shop Now</button>
     </section>
-    <section id="feature" class="section-p1">
-        <div class="fe-box">
-            <img src="/static/assets/category/image1-25-Jun-2024-11:11AM.jpg" alt="category image1 error">
-            <h6>Free Shipping</h6>
-        </div>
-        <div class="fe-box">
-            <img src="/static/assets/category/image2-25-Jun-2024-01:20PM.jpg" alt="category image2 error">
-            <h6>Online Order</h6>
-        </div>
-        <div class="fe-box">
-            <img src="/static/assets/category/image3-25-Jun-2024-01:21PM.jpg" alt="category image3 error">
-            <h6>Save Money</h6>
-        </div>
-        <div class="fe-box">
-            <img src="/static/assets/category/image4-25-Jun-2024-01:21PM.jpg" alt="category image4 error">
-            <h6>Promotions</h6>
-        </div>
-        <div class="fe-box">
-            <img src="/static/assets/category/image5-25-Jun-2024-01:21PM.jpg" alt="category image5 error">
-            <h6>Happy Sell</h6>
-        </div>
-        <div class="fe-box">
-            <img src="/static/assets/category/image6-25-Jun-2024-01:21PM.jpg" alt="category image6 error">
-            <h6>F24/7 Support</h6>
-        </div>
-    </section>
-
-    
+  
     <div class="container">
         <h1 class="mt-5">Product List</h1>
         <div class="row">
@@ -74,7 +46,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">{{ product.description }}</p>
-                            <p class="card-text">Price: ${{ product.price }}</p>
+                            <p class="card-text">Price: {{ product.price }} Ks</p>
                             <a href="/products/{{ product._id }}" class="btn btn-primary">View Details</a>
                         </div>
                     </div>
@@ -82,150 +54,6 @@
             {% endfor %}
         </div>
     </div>
-
-
-
-    
-
-
-
-
-
-
-    <!-- <section id="product1" class="section-p1">
-        <h2>Featured Products</h2>
-        <p>Summer Collection New Modern Design</p>
-        <div class="pro-container">
-            <div class="pro">
-                <img src="/static/assets/product/image19-25-Jun-2024-04:31PM.jpg" alt="product image19 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>80000 MMK</h4>
-                </div>
-                <a href="/products"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image20-25-Jun-2024-04:31PM.jpg" alt="product image20 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>90000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image21-25-Jun-2024-04:32PM.jpg" alt="product image21 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>100000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image22-25-Jun-2024-04:32PM.jpg" alt="product image22 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>80000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image23-25-Jun-2024-04:32PM.jpg"alt="product image23 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>90000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image24-25-Jun-2024-04:33PM.jpg" alt="product image24 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>120000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image25-25-Jun-2024-04:33PM.jpg" alt="product image24 error">
-                <div class="des">
-                    <span>YMT</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>110000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-            <div class="pro">
-                <img src="/static/assets/product/image26-25-Jun-2024-04:33PM.jpg" alt="product image26 error">
-                <div class="des">
-                    <span>adidas</span>
-                    <h5>Myanmar Traditional Dress</h5>
-                    <div class="star">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h4>10000 MMK</h4>
-                </div>
-                <a href="/cart"><i class="fas fa-shopping-cart cart"></i></a>
-            </div>
-        </div>
-    </section> -->
 
     <footer class="section-p1">
 
@@ -262,8 +90,8 @@
                     <i class="fab fa-pinterest-p"></i>
                     <i class="fab fa-youtube"></i>
                 </div>
-           
-            <img class="logo" src="/static/assets/category/Logo-25-Jun-2024-11:09AM.png" alt="logo error">
+    
+            <img class="logo" src="/static/assets/Logo (1)-02-Jul-2024-04:55PM.png" alt="logo error">
         </div>
         <div class="copyright">
             <p>Created By Yamin Thu | All Rights Reserved | &#169; 2024</p>

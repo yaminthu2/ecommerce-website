@@ -60,7 +60,7 @@ def add_to_cart(cart: CartItem, request: Request):
     initialize_session_cart(session)
 
     existing_item = find_existing_item(session, cart.product_id)
-    quantity_change = cart.quantity
+    # quantity_change = cart.quantity
 
     if existing_item:
         update_existing_item_quantity(existing_item, cart.quantity)
@@ -68,47 +68,59 @@ def add_to_cart(cart: CartItem, request: Request):
         remove_item_if_quantity_zero(session, existing_item)
     else:
         add_new_item_to_cart(session, cart.product_id, product['price'], cart.quantity)
-        update_product_stock(cart.product_id, -cart.quantity)
+        update_product_stock(cart.product_id,cart.quantity)
+   
+    total_quantity=sum(item['quantity']for item in session['cart'])
+    session['total_quantity']=total_quantity
 
     request.session.update(session)
-    return {"message": "Cart updated successfully","test":True}
+    return {"message": "Cart updated successfully","success":True,"total_quantiy":total_quantity}
 
-@route.get("/cart")
-def get_cart(request: Request, user=Depends(user_data)):
-    cart = request.session.get('cart', [])
-    detailed_cart = []
 
-    for item in cart:
-        product = product_collection.find_one({"_id": ObjectId(item['product_id'])})
-        if product:
-            detailed_cart.append({
-                "product_id": item['product_id'],
-                "quantity": item['quantity'],
-                "name": product['name'],
-                "price": product['price'],
-                "total_price": product['price'] * item['quantity']
-            })
+@route.get("/cart-items")
+def get_cart_items(request:Request):
+    session=request.session
+    cart_items=session.get('cart',[])
+    total_quantity=session.get('total_quantity',0)
+    return { "total_quantity":total_quantity,"cart_items":cart_items}
 
-    return JSONResponse(content={"cart": detailed_cart})
 
-@route.post("/checkout")
-def checkout(request: Request, user=Depends(user_data)):
-    cart = request.session.get('cart', [])
-    if not cart:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
+# @route.get("/cart")
+# def get_cart(request: Request, user=Depends(user_data)):
+#     cart = request.session.get('cart', [])
+#     detailed_cart = []
 
-    cart_total = sum(item['quantity'] * item['price'] for item in cart)
+#     for item in cart:
+#         product = product_collection.find_one({"_id": ObjectId(item['product_id'])})
+#         if product:
+#             detailed_cart.append({
+#                 "product_id": item['product_id'],
+#                 "quantity": item['quantity'],
+#                 "name": product['name'],
+#                 "price": product['price'],
+#                 "total_price": product['price'] * item['quantity']
+#             })
 
-    cart_document = {
-        "user_id": DBRef("users", ObjectId(user["_id"])),
-        "items": [{"product_id": DBRef("products", ObjectId(item["product_id"])), "quantity": item["quantity"], "price": item["price"]} for item in cart],
-        "total_price": cart_total
-    }
-    carts_collection.insert_one(cart_document)
-    request.session['cart'] = []
-    request.session.update(request.session)
+#     return JSONResponse(content={"cart": detailed_cart})
 
-    return JSONResponse(content={"message": "Checkout successful"})
+# @route.post("/checkout")
+# def checkout(request: Request, user=Depends(user_data)):
+#     cart = request.session.get('cart', [])
+#     if not cart:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
+
+#     cart_total = sum(item['quantity'] * item['price'] for item in cart)
+
+#     cart_document = {
+#         "user_id": DBRef("users", ObjectId(user["_id"])),
+#         "items": [{"product_id": DBRef("products", ObjectId(item["product_id"])), "quantity": item["quantity"], "price": item["price"]} for item in cart],
+#         "total_price": cart_total
+#     }
+#     carts_collection.insert_one(cart_document)
+#     request.session['cart'] = []
+#     request.session.update(request.session)
+
+#     return JSONResponse(content={"message": "Checkout successful"})
 
 
 

@@ -1,6 +1,7 @@
  {% extends 'base.html' %}
  {% block content %}
 
+
  <div class="container">
      <h1 class="mt-5">{{ product.name }}</h1>
      <div class="row">
@@ -40,12 +41,62 @@
                  <input type="number" id="quantity" value="1" min="1" class="form-control d-inline-block w-auto">
                  <button class="btn btn-secondary" onclick="updateQuantity(1)">+</button>
              </div>
+             <!-- <button class="add-to-cart" data-product-id="{{ product.id }}" data-quantity="1">Add to Cart</button> -->
              <button class="btn btn-primary mt-3" onclick="addToCart('{{ product._id }}')">Add to Cart</button>
          </div>
      </div>
  </div>
 
  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const productId = button.dataset.productId;
+            const quantity = button.dataset.quantity;
+
+            const response = await fetch('/api/cart/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    product_id: productId,
+                    quantity: quantity
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                document.querySelector('#lg-bag .badge').textContent = data.total_quantity;
+
+                // Fetch updated cart items
+                const cartResponse = await fetch('/api/cart/cart-items');
+                if (cartResponse.ok) {
+                    const cartData = await cartResponse.json();
+                    updateCartTable(cartData.cart_items);
+                }
+            }
+        });
+    });
+});
+
+    function updateCartTable(cartItems) {
+        const cartItemsTable = document.querySelector('#cart-items-table tbody');
+        cartItemsTable.innerHTML = '';  // Clear existing rows
+        cartItems.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.product_id}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+            `;
+            cartItemsTable.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
      function updateQuantity(change) {
          let quantityInput = document.getElementById('quantity');
          let currentQuantity = parseInt(quantityInput.value);
@@ -56,7 +107,7 @@
     
      function addToCart(productId) {
          let quantity = parseInt(document.getElementById('quantity').value);
-         for (let i = 0; i < quantity; i++) {
+        
              fetch(`/api/cart/add-to-cart`, {
                  method: 'POST',
                  headers: {
@@ -67,18 +118,19 @@
              .then(response => response.json())
              .then(data => {
                 // console.log(data)
-                 if (data.test === true) {
-                     alert('Cart updated successfully!');
+                 if (data.success === true) {
+                    //  alert('Cart updated successfully!');
+                     window.location.reload()
                  } else {
-                     alert('Error updating cart.');
+                    //  alert('Error updating cart.');
                  }
              })
              .catch(error => {
                  console.error('Error:', error);
-                 alert('Error updating cart 1.');
+                //  alert(' catch error updating cart .');
             });
          }
-     }
+   
      </script>
 
 
