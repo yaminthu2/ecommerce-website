@@ -1,0 +1,102 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block content %}
+
+  <div class="w-100 p-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Products</h1>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#myModal">Create</button>
+
+    </div>
+    <!-- <h1 >Products</h1>
+    <button type="button" class="btn btn-success">Create</button> -->
+    <hr class="border-2" />
+    
+    <!-- Table to display products -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Description</th>
+          <th scope="col">Item</th>
+          <th scope="col">Price</th>
+          <th scope="col">Images</th>
+          <th scope="col">Feature Product</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+       
+          <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category.name }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.item }}</td>
+            <td>{{ product.price }}</td>
+            <td>
+              {% for image in product.images %}
+                <img src="/static/{{image.img_url }}" alt="{{ product.name }} Image" style="max-width: 100px;"/>
+              {% endfor %}
+            </td>
+            <td>{{ product.feature_product }}</td>
+            
+            <td><a class="btn btn-primary" href="/products/edit/{{product._id}}" role="button">Edit</a></td>
+            <td><a class="btn btn-danger" href="#" role="button">Delete</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+   <!-- strat bootstrap modal -->
+   <div class="modal" tabindex="-1" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="categoryName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="categoryName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input type="text" class="form-control" id="category" name="category" required>
+          </div>
+          <div class="mb-3">
+            <label for="categoryDescription" class="form-label">Description</label>
+            <input type="text" class="form-control" id="categoryDescription" name="description" required>
+          </div>
+          <div class="mb-3">
+            <label for="categoryItem" class="form-label">Item</label>
+            <input type="text" class="form-control" id="categoryItem" name="item" required>
+          </div>
+          <div class="mb-3">
+            <label for="categoryPrice" class="form-label">Price</label>
+            <input type="text" class="form-control" id="categoryPrice" name="price" required>
+          </div>
+          <div class="mb-3">
+            <select class="form-select" aria-label="Default select example">
+              <option selected>Images</option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end bootstrap -->
+
+
+{% endblock %}

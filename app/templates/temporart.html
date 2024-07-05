@@ -1,39 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Myanmar Traditional Dress Website{% endblock %}</title>
-    <!-- font-awesome cdn link -->
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
-    <link rel="stylesheet" href="/static/css/test.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <section id="header">
-        <a href="#"><img src="/static/assets/category/Logo-25-Jun-2024-11:09AM.png" alt=""></a>
-        <div>
-            <ul id="navbar">
-                <li><a href="/">Home</a></li>
-                <li><a href="shop.html">Shop</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="/login">Sign In</a></li>
-                <li><a href="/api/logout">Logout</a></li>
-                <li id="lg-bag">
-                    <a href="cart.html"><i class="far fa-shopping-bag"></i></a>
-                    {% if session.total_quantity %}
-                        <span class="badge badge-pill badge-danger">{{ session.total_quantity }}</span>
-                    {% endif %}
-                </li>
-                <a href="#" id="close"><i class="far fa-times"></i></a>
-            </ul>
-        </div>
-        <div id="mobile">
-            <a href="something"><i class="far fa-shopping-bag"></i></a>
-        </div>
-    </section>
-    {% block content %}
-    {% endblock %}
-</body>
-</html>
+
+{% block content %}
+<div class="p-3">
+    <div class="mb-3">
+        <h1>Update Category</h1>
+    </div>
+    <hr>
+    <div>
+        <form id="updateCategoryForm">
+            <div class="row mb-3">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name" name="name" value="{{category.name}}" required>
+                </div>
+                <div class="col">
+                    <select class="form-select" name="parent_category" required>
+                        <option selected value="null">No Parent Category</option>
+                        {% for cat in categories %}
+                            {% if cat._id != category._id %}
+                                {% if cat._id == category.parent_category._id %}
+                                    <option value="{{cat._id}}" selected>{{cat.name}}</option>
+                                {% else %}
+                                    <option value="{{cat._id}}">{{cat.name}}</option>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <select class="form-select" name="image">
+                        <option selected value="null">No Image</option>
+                        {% for img in images %}
+                            {% if img._id == category.image._id %}
+                                <option value="{{img._id}}" selected>{{img.name}}</option>
+                            {% else %}
+                                <option value="{{img._id}}">{{img.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a onclick="handleUpdateCategory('{{category._id}}', '{{token}}')" class="btn btn-dark">Update</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    const handleUpdateCategory = async (id, token) => {
+        const form = document.getElementById('updateCategoryForm')
+        const formData = new FormData(form);
+        const formDataObj = Object.fromEntries(formData)
+        const {detail, success} = await putMethod(`/api/categories/${id}`, formDataObj, token)
+        showToast(detail, success, '/dashboard/categories')
+    }   
+</script>
+
+{% endblock %}

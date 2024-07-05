@@ -9,6 +9,8 @@ import json
 from starlette.middleware.sessions import SessionMiddleware
 from .routers.cart import add_to_cart
 from .routers import dashboard
+from .routers.category import get_all_categories,get_one_category,update_category
+from .routers.product import get_all_products,get_one_product
 
 
 app=FastAPI()
@@ -56,29 +58,41 @@ def get_product(request:Request,id:str):
     product=get_one_product(id)
     return templates.TemplateResponse("product.html",{"request":request,"product":product,"session":request.session})
 
-# @app.get("/cart")
-# def get_cart(request:Request):
-#     return templates.TemplateResponse("cart.html",{"request":request})
 
-@app.get("/nav")
-def dashboard(request:Request):
-    return templates.TemplateResponse("dashboard.html",{"request":request})
 
-@app.get("/order")
+
+#  start dashboard 
+@app.get("/orders")
 def get_user_order(request:Request):
-    return templates.TemplateResponse("order.html",{"request":request})
+    return templates.TemplateResponse("dashboard/orders.html",{"request":request})
 
 @app.get("/categories")
 def get_user_order(request:Request):
-    return templates.TemplateResponse("categories.html",{"request":request})
+    categories=get_all_categories()
+    return templates.TemplateResponse("dashboard/categories.html",{"request":request,"categories":categories})
+
+@app.get("/categories/edit/{id}")
+def category_edit(request:Request,id:str):
+    category=get_one_category(id)
+    return templates.TemplateResponse("dashboard/category_edit.html",{"request":request,"category":category})
 
 @app.get("/products")
 def get_user_order(request:Request):
-    return templates.TemplateResponse("products.html",{"request":request})
+    products=get_all_products()
+    return templates.TemplateResponse("dashboard/products.html",{"request":request,"products":products})
 
-@app.get("/user")
+@app.get("/products/edit/{id}")
+def product_edit(request:Request,id:str):
+    product=get_one_product(id)
+    print(product)
+    return templates.TemplateResponse("dashboard/product_edit.html",{"request":request,"product":product})
+    
+
+@app.get("/users")
 def get_user_order(request:Request):
-    return templates.TemplateResponse("user.html",{"request":request})
+    return templates.TemplateResponse("dashboard/users.html",{"request":request})
+
+# End dashboard
 
                                                                                                                                            
 json_format=app.openapi()
@@ -89,3 +103,18 @@ with open(filename,'w') as json_file:
 
     
     
+
+
+    #  category = find_category(id)
+#     categories = find_categories()
+#     images = find_images()
+#     token = request.session.get("token")
+#     return templates.TemplateResponse(
+#         "dashboard/edit_category.html",
+#         {
+#             "request": request,
+#             "category": category,
+#             "categories": categories,
+#             "images": images,
+#             "token": token,
+#         },

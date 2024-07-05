@@ -19,7 +19,7 @@ class Category(BaseModel):
         
 # create category data 
 @route.post("/",status_code=status.HTTP_201_CREATED)
-def carete_category(category:Category,user=Depends(user_data)):
+def carete_category(category:Category):
    category=category.model_dump()
    if category["parent"]:
        category["parent"]= DBRef("categories",ObjectId(category["parent"]),"ecommerce")
@@ -55,7 +55,7 @@ def get_parent(user=Depends(user_data)):
     
 #find one data
 @route.get("/{id}",status_code=status.HTTP_200_OK)
-def get_one_category(id:str,user=Depends(user_data)):
+def get_one_category(id:str):
     id=id.strip()
     if len(id) !=24:
         raise HTTPException(
@@ -74,7 +74,7 @@ def get_one_category(id:str,user=Depends(user_data)):
 
 #category update
 @route.put("/{id}",status_code=status.HTTP_200_OK)
-def update(id:str,data:Category,user=Depends(user_data)):
+def update_category(id:str,data:Category):
     id=id.strip()
     if  len(id) !=24:
         raise HTTPException(
@@ -93,7 +93,7 @@ def update(id:str,data:Category,user=Depends(user_data)):
 
 #delete of category
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
-def delete(id:str,user=Depends(user_data)):
+def delete(id:str):
     category=category_collection.find_one({"_id":ObjectId(id.strip())})
     if category==None:
         raise HTTPException(

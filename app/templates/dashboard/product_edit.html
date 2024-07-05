@@ -1,0 +1,45 @@
+Created the edit form {% extends 'dashboard/dashboard.html' %}
+
+{% block content %}
+
+    <div class="w-100 p-3">
+        <div>
+            <h2>Edit product</h2>
+            <hr class="border-2">
+        </div>
+        <form id="editProduct">
+            <!-- <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+            </div>
+            <div class="form-group">
+              <label for="category">Category</label>
+              <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <input type="text" class="form-control" id="description" name="description" value="{{ product.description }}" required>
+            </div> -->
+            <!-- <div class="form-group">
+              <label for="item">Item</label>
+              <input type="text" class="form-control" id="item" name="item" value="{{ product.item }}" required>
+            </div>
+            <div class="form-group">
+              <label for="price">Price</label>
+              <input type="text" class="form-control" id="price" name="price" value="{{ product.price }}" required>
+            </div>
+            <div class="form-group">
+              <label for="image">Images</label>
+              <input type="text" class="form-control" id="image" name="image" value="{{ product.image.img_url if product.image else '' }}">
+            </div>
+            <div class="form-group">
+              <label for="feature_product">Feature Product</label>
+              <input type="text" class="form-control" id="feature_product" name="feature_product" value="{{ product.feature_product }}" required>
+            </div> -->
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+
+    </div>
+{% endblock %}
+
