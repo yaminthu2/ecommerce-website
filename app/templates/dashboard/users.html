@@ -1,11 +1,115 @@
-{%extends 'dashboard/dashboard.html'%}
-  {% block content %}
+{% extends 'dashboard/dashboard.html' %}
 
-  <div class="w-100 p-2" >
-    <h1>Users</h1>
-    <!-- <hr class="bg-danger border-2 border-top border-danger" /> -->
-    <hr class="border-2">
-    <!-- Add your order content here -->
-    <p>You can write anything.</p>
+{% block content %}
+  <div class="w-100 p-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Users</h1>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#myModal">Create</button>
+    </div>
+    <hr class="border-2" />
+    
+    <!-- Table to display categories -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Username</th>
+          <th scope="col">Email</th>
+          <th scope="col">Password</th>
+          <th scope="col">Login</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        
+          <tr>
+            <td>{{ category.name }}</td>
+            <td>{% if category.parent %}{{ category.parent.name }}{% else %}None{% endif %}</td>
+            <td>
+              {% if category.image %}
+                <img src="/static/{{category.image.img_url }}" alt="{{ category.name }} Image" style="max-width: 100px;"/>
+              {% else %}
+                No Image
+              {% endif %}
+            </td>
+            <td><a class="btn btn-primary" href="/categories/edit/{{category._id}}" role="button">Edit</a></td>
+            <td><a class="btn btn-danger" href="/api/category/{{category._id}}" role="button">Delete</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  {%endblock%}
+  <!-- strat bootstrap modal -->
+  <div class="modal" tabindex="-1" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createCategoryForm">
+            <div class="mb-3">
+              <label for="categoryName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="categoryName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="categoryParent" class="form-label">Parent</label>
+              <input type="text" class="form-control" id="categoryParent" name="parent" >
+            </div>
+            <div class="mb-3">
+              <select class="form-select" aria-label="Default select example">
+                <option selected>Images</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </select>
+            </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end bootstrap -->
+
+  {% block scripts %}
+<script>
+  document.getElementById('createCategoryForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = {
+      name: formData.get('name'),
+      parent: formData.get('parent') || null,
+      image: formData.get('image')
+    };
+    
+    fetch('/api/category/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert('Category created successfully!');
+      location.reload();
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
+  });
+</script>
+{% endblock %}
+  
+{% endblock %}

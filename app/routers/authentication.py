@@ -18,6 +18,7 @@ class Register(BaseModel):
     username:str
     email:str
     password:str
+    is_admin:bool=False
     is_login:bool=True
     @field_validator("username","password","email")
     def get_strip(cls,value):
@@ -137,7 +138,7 @@ async def check_method(request: Request):
 
 
 @route.post("/register")
-async def registration(request: Request, register: Register = Depends(Register.register_form_data)):
+async def registration(request: Request, register: Register):
     try:
         if not register.username:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Invalid username")
@@ -163,22 +164,11 @@ async def registration(request: Request, register: Register = Depends(Register.r
         user_document = collection.insert_one(register.model_dump())
         payload = {"_id": str(user_document.inserted_id)}
         token = jwt.encode(payload, "website", algorithm="HS256")
-
-        html_content = """
-        <html>
-            <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
-        </html>
-        """
-
-        response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
-        response.set_cookie(key="authorization", value=f"bearer {token}", httponly=True)
-        return response
-
+        request.session["token"]=token
+        return {"detail":"successful register","success":True}
     except HTTPException as e:
-        # preserve form data
-        form_data = {"username": register.username, "email": register.email} 
-        return templates.TemplateResponse("register.html", {"request": request,"form_data": form_data, "error_message": e.detail})
-
+        return{"detail":e.detail,"success":False}
+        
 @route.post("/login")   
 def login(request:Request,login:Login=Depends(Login.login_form_data)):
     try:

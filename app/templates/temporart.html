@@ -59,3 +59,120 @@
 </script>
 
 {% endblock %}
+
+
+
+
+{% extends 'dashboard/dashboard.html' %}
+
+{% block content %}
+  <div class="w-100 p-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Categories</h1>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#myModal">Create</button>
+    </div>
+    <hr class="border-2" />
+    
+    <!-- Table to display categories -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Parent</th>
+          <th scope="col">Image</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          <tr>
+            <td>{{ category.name }}</td>
+            <td>{% if category.parent %}{{ category.parent.name }}{% else %}None{% endif %}</td>
+            <td>
+              {% if category.image %}
+                <img src="/static/{{category.image.img_url }}" alt="{{ category.name }} Image" style="max-width: 100px;"/>
+              {% else %}
+                No Image
+              {% endif %}
+            </td>
+            <td><a class="btn btn-primary" href="/categories/edit/{{category._id}}" role="button">Edit</a></td>
+            <td><a class="btn btn-danger" href="/api/category/{{category._id}}" role="button">Delete</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- start bootstrap modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end bootstrap modal -->
+{% endblock %}
+
+
+  <!-- <script>
+        const handleUpdateCategory = async (id) => {
+            const form = document.getElementById('updateCategoryForm')
+            const formData = new FormData(form);
+            const formDataObj = Object.fromEntries(formData)
+            const {detail, success} = await putMethod(`/api/categories/${id}`, formDataObj, token)
+            showToast(detail, success, '/dashboard/categories')
+        }   
+        function updateQuantity(change) {
+         let quantityInput = document.getElementById('quantity');
+         let currentQuantity = parseInt(quantityInput.value);
+         if (currentQuantity + change >= 1) {
+             quantityInput.value = currentQuantity + change;
+         }
+        }
+    </script>  -->
+
+
+
+    document.getElementById('createCategoryForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = {
+        name: formData.get('name'),
+        parent: formData.get('parent') || null,
+        image: formData.get('image')
+      };
+      
+      fetch('/api/category/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        alert('Category created successfully!');
+        location.reload();
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    });

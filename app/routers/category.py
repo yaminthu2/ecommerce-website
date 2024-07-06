@@ -19,15 +19,19 @@ class Category(BaseModel):
         
 # create category data 
 @route.post("/",status_code=status.HTTP_201_CREATED)
-def carete_category(category:Category):
-   category=category.model_dump()
-   if category["parent"]:
-       category["parent"]= DBRef("categories",ObjectId(category["parent"]),"ecommerce")
-   category["image"]=DBRef("images",ObjectId(category["image"]),"ecommerce")
+def carete_category(category:Category,depen=Depends(user_data)):
+    try:
+        category=category.model_dump()
+        if category["parent"]:
+            category["parent"]= DBRef("categories",ObjectId(category["parent"]),"ecommerce")
+        category["image"]=DBRef("images",ObjectId(category["image"]),"ecommerce")
    
-   result=category_collection.insert_one(category)
-   category["_id"]=str(result.inserted_id)
-   return{"detail":"Successful create category"}
+        result=category_collection.insert_one(category)
+        category["_id"]=str(result.inserted_id)
+        return{"detail":"Successful create category"}
+    except:
+        pass
+
 
 #find all categories 
 @route.get("/",status_code=status.HTTP_200_OK)
@@ -93,13 +97,16 @@ def update_category(id:str,data:Category):
 
 #delete of category
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
-def delete(id:str):
-    category=category_collection.find_one({"_id":ObjectId(id.strip())})
-    if category==None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid Id")
-    category_collection.delete_one({"_id":ObjectId(id.strip())})
+def delete(id:str,depend=Depends(user_data)):
+    try:
+            category=category_collection.find_one({"_id":ObjectId(id.strip())})
+            if category==None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Invalid Id")
+            category_collection.delete_one({"_id":ObjectId(id.strip())})
+    except HTTPException as e:
+        return{"detail":"successful deleted"}
     
 
     

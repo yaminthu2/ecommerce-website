@@ -11,6 +11,7 @@ from .routers.cart import add_to_cart
 from .routers import dashboard
 from .routers.category import get_all_categories,get_one_category,update_category
 from .routers.product import get_all_products,get_one_product
+from .routers.image import get_all_images
 
 
 app=FastAPI()
@@ -69,23 +70,38 @@ def get_user_order(request:Request):
 @app.get("/categories")
 def get_user_order(request:Request):
     categories=get_all_categories()
-    return templates.TemplateResponse("dashboard/categories.html",{"request":request,"categories":categories})
+    images=get_all_images()
+    token=request.session.get("token")
+    return templates.TemplateResponse("dashboard/categories.html",{"request":request,"categories":categories,"images":images,"token":token})
 
 @app.get("/categories/edit/{id}")
 def category_edit(request:Request,id:str):
     category=get_one_category(id)
-    return templates.TemplateResponse("dashboard/category_edit.html",{"request":request,"category":category})
+    categories=get_all_categories()
+    images=get_all_images()
+    token=request.session.get("token")
+    return templates.TemplateResponse("dashboard/category_edit.html",{"request":request,"category":category,"categories":categories,"images":images,"token":token})
 
 @app.get("/products")
 def get_user_order(request:Request):
     products=get_all_products()
-    return templates.TemplateResponse("dashboard/products.html",{"request":request,"products":products})
+    images=get_all_images()
+    categories=get_all_categories()
+    token=request.session.get("token")
+    return templates.TemplateResponse("dashboard/products.html",{"request":request,"products":products,"images":images,"categories":categories,"token":token})
 
 @app.get("/products/edit/{id}")
 def product_edit(request:Request,id:str):
     product=get_one_product(id)
-    print(product)
-    return templates.TemplateResponse("dashboard/product_edit.html",{"request":request,"product":product})
+    products=get_all_products()
+    categories=get_all_categories()
+    images=get_all_images()
+    token=request.session.get("token")
+    return templates.TemplateResponse("dashboard/product_edit.html",{"request":request,
+                                                                     "product":product,
+                                                                     "products":products,
+                                                                     "categories":categories,
+                                                                     "images":images,"token":token})
     
 
 @app.get("/users")

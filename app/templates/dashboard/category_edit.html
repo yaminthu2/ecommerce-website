@@ -1,7 +1,5 @@
-Created the edit form {% extends 'dashboard/dashboard.html' %}
-
+{% extends 'dashboard/dashboard.html' %}
 {% block content %}
-
     <div class="w-100 p-3">
         <div>
             <h2>Edit category</h2>
@@ -13,33 +11,58 @@ Created the edit form {% extends 'dashboard/dashboard.html' %}
               <input type="text" class="form-control" id="name" name="name" value="{{ category.name }}" required>
             </div>
             <div class="form-group">
-              <label for="parent">Parent</label>
-              <input type="text" class="form-control" id="parent" name="parent" value="{{ category.parent.name if category.parent else '' }}">
+              <select class="form-select" aria-label="Default select example" name="parent" >
+                <option value="" selected>Select the parent category</option>
+                {% for categoy in categories%}
+                  {% if category._id != categoy._id%}
+                    {% if category.parent._id == categoy._id%}
+                      <option value="{{categoy._id}}" selected>{{categoy.name}}</option>
+                    {% else %}
+                      <option value="{{categoy._id}}" >{{categoy.name}}</option>
+                      {%endif%}
+                {% endif %}
+                {%endfor%}
+              </select>
             </div>
+           
             <div class="form-group">
-              <label for="image">Image URL</label>
-              <input type="text" class="form-control" id="image" name="image" value="{{ category.image.img_url if category.image else '' }}">
+              <select class="form-select" aria-label="Default select example" name="image">
+                <option value="" selected>Select the images</option>
+                {%for image in images%}
+                  {% if 'category' in image.img_url %}
+                    {% if category.image._id == image._id%}
+                      <option value="{{image._id}}" selected>{{image.name}}</option>
+                    {%else %}
+                        <option value="{{image._id}}" >{{image.name}}</option>
+                    {%endif%}
+                
+                  {%endif%}
+                {%endfor%}
+                </select>
             </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a class="btn btn-primary" onclick="createCategory('{{token}}','{{category._id}}')">Save</a>
           </form>
 
     </div>
-    <!-- <script>
-        const handleUpdateCategory = async (id) => {
-            const form = document.getElementById('updateCategoryForm')
-            const formData = new FormData(form);
-            const formDataObj = Object.fromEntries(formData)
-            const {detail, success} = await putMethod(`/api/categories/${id}`, formDataObj, token)
-            showToast(detail, success, '/dashboard/categories')
-        }   
-        function updateQuantity(change) {
-         let quantityInput = document.getElementById('quantity');
-         let currentQuantity = parseInt(quantityInput.value);
-         if (currentQuantity + change >= 1) {
-             quantityInput.value = currentQuantity + change;
-         }
-        }
-    </script>  -->
+    {%block script%}
+    <script>
+        async function createCategory(token,id){
+        const form = document.getElementById("editCategory");
+        const formData = new FormData(form);
+        const data=Object.fromEntries(formData)
+        
+        const result=  await putMethod(`/api/category/${id}`,data,token)
+        const toast=document.getElementById('toast')
+        const toastbody=document.getElementById('toast-body')
+                
+        toast.classList.add("show")
+        toastbody.innerHTML=result.detail
+        window.location.href="/categories"
+  } 
+
+    </script>
+    {% endblock%}
+  
     
     
    

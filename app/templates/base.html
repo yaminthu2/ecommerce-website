@@ -7,7 +7,7 @@
      <!-- font-awesome cdn link -->
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/static/css/allcss.css">
 </head>
 <body>
@@ -59,7 +59,17 @@
 
     {% block content %}
     {% endblock %}
-    
+    <div class="toast position-fixed end-0 bottom-0 " id="toast"  role="alert" aria-live="assertive" aria-atomic="true" >
+        <div class="toast-header">
+          <!-- <img src="..." class="rounded me-2" alt="..."> -->
+          <strong class="me-auto">Bootstrap</strong>
+          <small class="text-muted">11 mins ago</small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body">
+            
+        </div>
+      </div>
     
 </body>
 </html>

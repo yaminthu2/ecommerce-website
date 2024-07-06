@@ -44,7 +44,8 @@
             <td>{{ product.feature_product }}</td>
             
             <td><a class="btn btn-primary" href="/products/edit/{{product._id}}" role="button">Edit</a></td>
-            <td><a class="btn btn-danger" href="#" role="button">Delete</a></td>
+            <td><a class="btn btn-danger" onclick="productDelete('{{token}}','{{product._id}}')">Delete</a></td>
+            
           </tr>
         {% endfor %}
       </tbody>
@@ -59,44 +60,92 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="categoryName" class="form-label">Name</label>
-            <input type="text" class="form-control" id="categoryName" name="name" required>
-          </div>
-          <div class="mb-3">
-            <label for="category" class="form-label">Category</label>
-            <input type="text" class="form-control" id="category" name="category" required>
-          </div>
-          <div class="mb-3">
-            <label for="categoryDescription" class="form-label">Description</label>
-            <input type="text" class="form-control" id="categoryDescription" name="description" required>
-          </div>
-          <div class="mb-3">
-            <label for="categoryItem" class="form-label">Item</label>
-            <input type="text" class="form-control" id="categoryItem" name="item" required>
-          </div>
-          <div class="mb-3">
-            <label for="categoryPrice" class="form-label">Price</label>
-            <input type="text" class="form-control" id="categoryPrice" name="price" required>
-          </div>
-          <div class="mb-3">
-            <select class="form-select" aria-label="Default select example">
-              <option selected>Images</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </select>
-          </div>
+          <form id="createProductForm">
+            <div class="mb-3">
+              <label for="categoryName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="categoryName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <select name="category" class="form-select" aria-label="Default select example">
+               
+                {% for categoy in categories%}
+                <option value="{{categoy._id}}">{{categoy.name}}</option>
+                
+                {%endfor%}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="categoryDescription" class="form-label">Description</label>
+              <input type="text" class="form-control" id="categoryDescription" name="description" required>
+            </div>
+            <div class="mb-3">
+              <label for="categoryItem" class="form-label">Item</label>
+              <input type="number" class="form-control" id="categoryItem" name="item" required>
+            </div>
+            <div class="mb-3">
+              <label for="categoryPrice" class="form-label">Price</label>
+              <input type="number" class="form-control" id="categoryPrice" name="price" required>
+            </div>
+            <div class="mb-3">
+              <select name="images" class="form-select" aria-label="Default select example">
+                
+                {%for image in images%}
+                {% if 'product' in image.img_url %}
+                    <option value="{{image._id}}">{{image.name}}</option>
+                
+                {%endif%}
+                {%endfor%}
+                
+              </select>
+            </div>
+            <div class="mb-3">
+              <input class="form-check-input" type="checkbox" name="feature_product " id="flexCheckDefault">
+              <label class="form-check-label" for="flexCheckDefault">
+                Feature Product
+              </label>
+            </div>
+          </form>
           
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <a class="btn btn-secondary" onclick="createProduct('{{token}}')">Save</a>v
+         
         </div>
       </div>
     </div>
   </div>
   <!-- end bootstrap -->
+  {% block scripts %}
+  <script>
+    async function createProduct(token){
+    
+    const form = document.getElementById("createProductForm");
+    const formData = new FormData(form);
+    const data=Object.fromEntries(formData)
+    console.log(data)
+
+    // const result=  await postMethod("/api/product",data,token)
+    // const toast=document.getElementById('toast')
+    // const toastbody=document.getElementById('toast-body')
+            
+    // toast.classList.add("show")
+    // toastbody.innerHTML=result.detail
+    // window.location.reload()
+  }
+  
+
+  async function productDelete(token,id){
+    const result= await deleteMethod(`/api/product/${id}`,token)
+    const toast=document.getElementById('toast')
+    const toastbody=document.getElementById('toast-body')
+    toast.classList.add("show")
+    toastbody.innerHTML=result.detail  
+    window.location.reload()
+      
+  }
+  </script>
+  {% endblock%}
 
 
 {% endblock %}

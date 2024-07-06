@@ -33,7 +33,8 @@
               {% endif %}
             </td>
             <td><a class="btn btn-primary" href="/categories/edit/{{category._id}}" role="button">Edit</a></td>
-            <td><a class="btn btn-danger" href="/api/category/{{category._id}}" role="button">Delete</a></td>
+            <!-- <td><a class="btn btn-danger" href="/api/category/{{category._id}}" role="button">Delete</a></td> -->
+            <td><a class="btn btn-danger" onclick="deleteCategory('{{token}}','{{category._id}}')">Delete</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -48,29 +49,39 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+
           <form id="createCategoryForm">
             <div class="mb-3">
               <label for="categoryName" class="form-label">Name</label>
               <input type="text" class="form-control" id="categoryName" name="name" required>
             </div>
             <div class="mb-3">
-              <label for="categoryParent" class="form-label">Parent</label>
-              <input type="text" class="form-control" id="categoryParent" name="parent" >
+              <select name="parent" class="form-select" aria-label="Default select example">
+                <option selected value="">Select the parent category</option>
+                {% for categoy in categories%}
+                <option value="{{categoy._id}}">{{categoy.name}}</option>
+                
+                {%endfor%}
+              </select>
             </div>
             <div class="mb-3">
-              <select class="form-select" aria-label="Default select example">
-                <option selected>Images</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
+              <select name="image" class="form-select" aria-label="Default select example">
+                <option selected value="">Select the images</option>
+                {%for image in images%}
+                {% if 'category' in image.img_url %}
+                    <option value="{{image._id}}">{{image.name}}</option>
+                
+                {%endif%}
+                {%endfor%}
+                </select>
             </div>
 
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <!-- <button type="button" class="btn btn-primary">Save</button> -->
+          <a class="btn btn-secondary" onclick="createCategory('{{token}}')">Save</a>
         </div>
       </div>
     </div>
@@ -79,37 +90,31 @@
 
   {% block scripts %}
 <script>
-  document.getElementById('createCategoryForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+  async function createCategory(token){
+    const form = document.getElementById("createCategoryForm");
+    const formData = new FormData(form);
+    const data=Object.fromEntries(formData)
     
-    const formData = new FormData(this);
-    const data = {
-      name: formData.get('name'),
-      parent: formData.get('parent') || null,
-      image: formData.get('image')
-    };
-    
-    fetch('/api/category/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      alert('Category created successfully!');
-      location.reload();
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-    });
-  });
+    const result=  await postMethod("/api/category",data,token)
+    const toast=document.getElementById('toast')
+    const toastbody=document.getElementById('toast-body')
+            
+    toast.classList.add("show")
+    toastbody.innerHTML=result.detail
+    window.location.reload()
+  }
+  
+  async function deleteCategory(token,id){
+    const result= await deleteMethod(`/api/category/${id}`,token)
+    const toast=document.getElementById('toast')
+    const toastbody=document.getElementById('toast-body')
+    toast.classList.add("show")
+    toastbody.innerHTML=result.detail  
+    window.location.reload()
+  
+      
+  }
+  
 </script>
 {% endblock %}
   

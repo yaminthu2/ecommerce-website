@@ -34,7 +34,7 @@ class Products(BaseModel):
 
 #create product data
 @route.post("/",status_code=status.HTTP_201_CREATED)
-def get_create_product(products:Products,user=Depends(user_data)):
+def get_create_product(products:Products,depen=Depends(user_data)):
     product=products.model_dump()
     product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
     images_dbref=[]
@@ -98,7 +98,7 @@ def update(id:str,products:Products):
                        
 #product delete
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)  
-def delete(id:str,user=Depends(user_data)):
+def delete(id:str,depen=Depends(user_data)):
     document=product_collection.find_one_and_delete({"_id":ObjectId(id.strip())}) 
     if document==None:
         raise HTTPException(
