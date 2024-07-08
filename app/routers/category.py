@@ -80,7 +80,7 @@ def get_one_category(id:str):
 @route.put("/{id}",status_code=status.HTTP_200_OK)
 def update_category(id:str,data:Category):
     id=id.strip()
-    if  len(id) !=24:
+    if  len(id) !=24:  
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Please must be enter 24 character Id")

@@ -5,7 +5,7 @@ import re
 from argon2 import PasswordHasher
 import jwt
 from bson import ObjectId
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse,RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from fastapi.templating import Jinja2Templates
@@ -13,6 +13,10 @@ from fastapi.templating import Jinja2Templates
 route=APIRouter()
 templates=Jinja2Templates(directory="app/templates")
 
+
+# Admin credentials
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "Admin*123"
 
 class Register(BaseModel):
     username:str
@@ -66,8 +70,6 @@ class ChangePassword(BaseModel):
             "password":password,
             "new_password":new_password
         }
-
-
 
 def check_email(email):
     regex='[\w\.-]+@[\w\.-]+\.\w{2,4}'
@@ -137,6 +139,17 @@ async def check_method(request: Request):
     return request
 
 
+# find all users
+@route.get("/",status_code=status.HTTP_200_OK)
+def get_all_users():
+    cursor_obj=collection.find({})
+    users_documents=[]
+    for document in cursor_obj:
+        document["_id"]=str(document["_id"])
+        users_documents.append(document)
+    return users_documents
+
+        
 @route.post("/register")
 async def registration(request: Request, register: Register):
     try:
@@ -170,9 +183,10 @@ async def registration(request: Request, register: Register):
         return{"detail":e.detail,"success":False}
         
 @route.post("/login")   
-def login(request:Request,login:Login=Depends(Login.login_form_data)):
+def login(request:Request,login:Login):
     try:
         user_document=collection.find_one({"email":login.email})
+      
         if user_document==None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -187,17 +201,14 @@ def login(request:Request,login:Login=Depends(Login.login_form_data)):
         collection.update_one({"_id":user_document["_id"]},{"$set":{"is_login":True}})
         payload={"_id":str(user_document["_id"])}
         token=jwt.encode(payload,"website",algorithm="HS256")
-        html_content = f"""
-        <html>
-            <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
-        </html>
-        """
-
-        response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
-        response.set_cookie(key="authorization", value=f"bearer {token}", httponly=True)
-        return response
+        request.session["token"]=token
+        url="/"
+        if user_document["is_admin"]:
+            url="/orders"
+        return {"detail":"successful register","success":True,"url":url}
+       
     except HTTPException as e:
-        return templates.TemplateResponse("login.html", {"request":request,"error_message": e.detail})
+         return{"detail":e.detail,"success":False}
     
 @route.post("/change-password", dependencies=[Depends(check_method)])
 async def change_password(request: Request,changePassword:ChangePassword.change_password_form_data=Depends(),user_id=Depends(user_data)):
@@ -249,4 +260,5 @@ def logout(user_id=Depends(user_data)):
 
 
     
+
 

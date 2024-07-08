@@ -12,7 +12,7 @@
 
 <div class="container">
     <div class="login-box">
-        <form method="post" action="/api/login" id="loginForm">
+        <form  id="loginForm">
             
             <div class="input-box">
                 <span class="icon"><ion-icon name="mail-unread"></ion-icon></span>
@@ -27,7 +27,8 @@
             <div class="change-password">
                 <a href="/change-password">change password?</a>
             </div>
-            <button type="submit">Sign In</button>
+            <!-- <button type="submit">Sign In</button> -->
+            <a class="btn btn-secondary" onclick="login()"> Sign In</a>
             <div class="register-link">
                 <p>Don't have an accouont?<a href="/register">Singn Up</a></p>
             </div>
@@ -41,6 +42,43 @@
     </div>
   
 </div>
+<script>
+     function login(){
+        const form = document.getElementById("loginForm");
+        const formData = new FormData(form);
+        const data=Object.fromEntries(formData)
+        
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const toast=document.getElementById('toast')
+            const toastbody=document.getElementById('toast-body')
+            toast.classList.add("show")
+            toastbody.innerHTML=data.detail
+            window.location.href=data.url
+                
+        })
+        .catch(error => {
+            
+            const toast=document.getElementById('toast')
+            const toastbody=document.getElementById('toast-body')
+            
+            toast.classList.add("show")
+            toastbody.innerHTML=error.detail
+            
+            // setTimeout(() => {
+            // console.log("Delayed for 1 second.");
+            //  }, "1000");
+       });
+    }
+</script>
 
 
 <!-- ionicorn js link -->

@@ -4,7 +4,7 @@ from .routers import authentication,category,product,image,cart
 from .routers.product import get_all_products,get_one_product
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse,RedirectResponse
 import json
 from starlette.middleware.sessions import SessionMiddleware
 from .routers.cart import add_to_cart
@@ -12,6 +12,7 @@ from .routers import dashboard
 from .routers.category import get_all_categories,get_one_category,update_category
 from .routers.product import get_all_products,get_one_product
 from .routers.image import get_all_images
+from .routers.authentication import get_all_users
 
 
 app=FastAPI()
@@ -27,7 +28,7 @@ app.include_router(category.route,prefix="/api/category",tags=["category"])
 app.include_router(product.route,prefix="/api/product",tags=["product"])
 app.include_router(image.route,prefix="/api/image",tags=["image"])
 app.include_router(cart.route,prefix="/api/cart",tags=["cart"])
-app.include_router(dashboard.route,prefix="/dashboard",tags=["cart"])
+# app.include_router(dashboard.route,prefix="/dashboard",tags=["cart"])
                                                                                             
 
 
@@ -41,7 +42,7 @@ def index(request:Request):
     products=get_all_products()
     return templates.TemplateResponse("index.html",{"request":request,"products":products,"session":request.session})
     
-@app.get("/login",response_class=HTMLResponse)   
+@app.get("/login",response_class=RedirectResponse)   
 def get_login(request:Request):
     return templates.TemplateResponse("login.html",{"request":request,"session":request.session})  
 
@@ -106,7 +107,8 @@ def product_edit(request:Request,id:str):
 
 @app.get("/users")
 def get_user_order(request:Request):
-    return templates.TemplateResponse("dashboard/users.html",{"request":request})
+    users=get_all_users()
+    return templates.TemplateResponse("dashboard/users.html",{"request":request,"users":users})
 
 # End dashboard
 

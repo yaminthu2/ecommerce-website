@@ -54,7 +54,7 @@ def remove_item_if_quantity_zero(session, existing_item):
         session['cart'].remove(existing_item)
 
 @route.post("/add-to-cart")
-def add_to_cart(cart: CartItem, request: Request):
+def add_to_cart(cart: CartItem, request: Request,depend=Depends(user_data)):
     product = find_product(cart.product_id)
     session = request.session
     initialize_session_cart(session)
@@ -103,24 +103,24 @@ def get_cart_items(request:Request):
 
 #     return JSONResponse(content={"cart": detailed_cart})
 
-# @route.post("/checkout")
-# def checkout(request: Request, user=Depends(user_data)):
-#     cart = request.session.get('cart', [])
-#     if not cart:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
+@route.post("/checkout")
+def checkout(request: Request, user=Depends(user_data)):
+    cart = request.session.get('cart', [])
+    if not cart:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
 
-#     cart_total = sum(item['quantity'] * item['price'] for item in cart)
+    cart_total = sum(item['quantity'] * item['price'] for item in cart)
 
-#     cart_document = {
-#         "user_id": DBRef("users", ObjectId(user["_id"])),
-#         "items": [{"product_id": DBRef("products", ObjectId(item["product_id"])), "quantity": item["quantity"], "price": item["price"]} for item in cart],
-#         "total_price": cart_total
-#     }
-#     carts_collection.insert_one(cart_document)
-#     request.session['cart'] = []
-#     request.session.update(request.session)
+    cart_document = {
+        "user_id": DBRef("users", ObjectId(user["_id"])),
+        "items": [{"product_id": DBRef("products", ObjectId(item["product_id"])), "quantity": item["quantity"], "price": item["price"]} for item in cart],
+        "total_price": cart_total
+    }
+    carts_collection.insert_one(cart_document)
+    request.session['cart'] = []
+    request.session.update(request.session)
 
-#     return JSONResponse(content={"message": "Checkout successful"})
+    return JSONResponse(content={"message": "Checkout successful"})
 
 
 

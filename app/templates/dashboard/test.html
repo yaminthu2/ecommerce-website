@@ -1,0 +1,79 @@
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from pymongo import MongoClient
+from bson import ObjectId
+
+app = FastAPI()
+
+# Setup static and template directories
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+# MongoDB client setup (adjust connection string as needed)
+client = MongoClient("mongodb://localhost:27017/")
+db = client["ecommerce"]
+users_collection = db["users"]
+
+# Admin credentials
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "Admin*123"
+
+@app.get("/login", response_class=HTMLResponse)
+async def get_login_form(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/login")
+async def login(username: str = Form(...), password: str = Form(...)):
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        response = RedirectResponse(url="/admin_dashboard", status_code=302)
+        response.set_cookie(key="username", value=username)
+        return response
+    else:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+# Middleware to check if the user is an admin
+@app.middleware("http")
+async def admin_auth_middleware(request: Request, call_next):
+    username = request.cookies.get("username")
+    if request.url.path.startswith("/admin") and username != ADMIN_USERNAME:
+        return RedirectResponse(url="/login")
+    response = await call_next(request)
+    return response
+
+# Dependency to get the current user (mocking authentication)
+async def get_current_user(request: Request):
+    username = request.cookies.get("username")
+    if username == ADMIN_USERNAME:
+        # Fetch admin data
+        user = {
+            "username": ADMIN_USERNAME,
+            "email": "mailto:admin@example.com",
+            "profile_image": "static/images/admin.jpg",
+            "created_at": "2023-01-01T00:00:00"
+        }
+    else:
+        user_id = "some_user_id"  # Replace with actual user ID or fetch dynamically
+        user = users_collection.find_one({"_id": ObjectId(user_id)})
+        if user:
+            user["created_at"] = user["created_at"].isoformat()
+    return user
+
+@app.get("/admin_dashboard", response_class=HTMLResponse)
+async def admin_dashboard(request: Request, user: dict = Depends(get_current_user)):
+    if not user:
+        return HTMLResponse("User not found", status_code=404)
+    return templates.TemplateResponse("user_dashboard.html", {"request": request, "user": user})
+
+@app.get("/admin/users", response_class=HTMLResponse)
+async def get_users(request: Request):
+    users = list(users_collection.find())
+    for user in users:
+        user["_id"] = str(user["_id"])
+    return templates.TemplateResponse("dashboard/user.html", {"request": request, "users": users, "token": "your_token_here"})
+
+# Run the application
+if _name_ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

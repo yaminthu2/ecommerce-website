@@ -98,11 +98,21 @@ def update(id:str,products:Products):
                        
 #product delete
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)  
-def delete(id:str,depen=Depends(user_data)):
-    document=product_collection.find_one_and_delete({"_id":ObjectId(id.strip())}) 
-    if document==None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,detail="Invalid Id")
+def delete(id:str,depend=Depends(user_data)):
+    try:
+            product=product_collection.find_one({"_id":ObjectId(id.strip())})
+            if product==None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Invalid Id")
+            product_collection.delete_one({"_id":ObjectId(id.strip())})
+    except HTTPException as e:
+        return{"detail": e.detail}
+# def delete(id:str,depen=Depends(user_data)):
+#     document=product_collection.find_one_and_delete({"_id":ObjectId(id.strip())}) 
+#     if document==None:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,detail="Invalid Id")
 
 
         

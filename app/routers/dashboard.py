@@ -1,8 +1,12 @@
-from fastapi  import APIRouter
+from fastapi  import Request
+
+def dashboard_depend(request:Request):
+    pass
+   
+       
+    
 
 
-route=APIRouter()
 
-@route.get("")
-def dashboard():
-    return{"message":"success"}
+
+ 

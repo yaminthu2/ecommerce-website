@@ -60,6 +60,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+
           <form id="createProductForm">
             <div class="mb-3">
               <label for="categoryName" class="form-label">Name</label>
@@ -76,7 +77,7 @@
             </div>
             <div class="mb-3">
               <label for="categoryDescription" class="form-label">Description</label>
-              <input type="text" class="form-control" id="categoryDescription" name="description" required>
+              <textarea type="text" class="form-control" id="categoryDescription" name="description" required></textarea>
             </div>
             <div class="mb-3">
               <label for="categoryItem" class="form-label">Item</label>
@@ -87,19 +88,21 @@
               <input type="number" class="form-control" id="categoryPrice" name="price" required>
             </div>
             <div class="mb-3">
-              <select name="images" class="form-select" aria-label="Default select example">
-                
-                {%for image in images%}
-                {% if 'product' in image.img_url %}
-                    <option value="{{image._id}}">{{image.name}}</option>
-                
-                {%endif%}
-                {%endfor%}
-                
-              </select>
+              <select
+              class="form-select"
+              multiple
+              id="images"
+              aria-label="Floating label select example"
+              name="images"
+              style="height: 150px"
+            >
+              {% for image in images %}
+              <option value="{{image._id}}">{{image.name}}</option>
+              {% endfor %}
+            </select>
             </div>
             <div class="mb-3">
-              <input class="form-check-input" type="checkbox" name="feature_product " id="flexCheckDefault">
+              <input class="form-check-input" type="checkbox" name="feature_product" id="flexCheckDefault">
               <label class="form-check-label" for="flexCheckDefault">
                 Feature Product
               </label>
@@ -109,7 +112,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <a class="btn btn-secondary" onclick="createProduct('{{token}}')">Save</a>v
+          <a class="btn btn-secondary" onclick="createProduct('{{token}}')">Save</a>
          
         </div>
       </div>
@@ -122,21 +125,29 @@
     
     const form = document.getElementById("createProductForm");
     const formData = new FormData(form);
-    const data=Object.fromEntries(formData)
-    console.log(data)
+    const data = Object.fromEntries(formData);
+    
+    if (data.feature_product){
+      data.feature_product=true
+    }
+    
+  
+    const selectedOptions = document.querySelectorAll("#images :checked");
+    const selectedImages = [...selectedOptions].map((option) => option.value);
+    data.images=selectedImages
 
-    // const result=  await postMethod("/api/product",data,token)
-    // const toast=document.getElementById('toast')
-    // const toastbody=document.getElementById('toast-body')
+    const result=  await postMethod("/api/product",data,token)
+    const toast=document.getElementById('toast')
+    const toastbody=document.getElementById('toast-body')
             
-    // toast.classList.add("show")
-    // toastbody.innerHTML=result.detail
-    // window.location.reload()
+    toast.classList.add("show")
+    toastbody.innerHTML=result.detail
+    window.location.reload()
   }
   
 
   async function productDelete(token,id){
-    const result= await deleteMethod(`/api/product/${id}`,token)
+    const result=await deleteMethod(`/api/product/${id}`,token)
     const toast=document.getElementById('toast')
     const toastbody=document.getElementById('toast-body')
     toast.classList.add("show")
