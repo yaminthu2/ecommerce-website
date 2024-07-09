@@ -60,15 +60,15 @@ def add_to_cart(cart: CartItem, request: Request,depend=Depends(user_data)):
     initialize_session_cart(session)
 
     existing_item = find_existing_item(session, cart.product_id)
-    # quantity_change = cart.quantity
+    quantity_change = cart.quantity
 
     if existing_item:
-        update_existing_item_quantity(existing_item, cart.quantity)
-        update_product_stock(cart.product_id, -cart.quantity)
+        update_existing_item_quantity(existing_item, quantity_change)
+        update_product_stock(cart.product_id, quantity_change)
         remove_item_if_quantity_zero(session, existing_item)
     else:
-        add_new_item_to_cart(session, cart.product_id, product['price'], cart.quantity)
-        update_product_stock(cart.product_id,cart.quantity)
+        add_new_item_to_cart(session, cart.product_id, product['price'], quantity_change)
+        update_product_stock(cart.product_id,quantity_change)
    
     total_quantity=sum(item['quantity']for item in session['cart'])
     session['total_quantity']=total_quantity
@@ -77,31 +77,35 @@ def add_to_cart(cart: CartItem, request: Request,depend=Depends(user_data)):
     return {"message": "Cart updated successfully","success":True,"total_quantiy":total_quantity}
 
 
+# @route.get("/cart-items")
+# def get_cart_items(request:Request):
+#     session=request.session
+#     cart_items=session.get('cart',[])
+#     total_quantity=session.get('total_quantity',0)
+#     return { "total_quantity":total_quantity,"cart_items":cart_items}
+
+
 @route.get("/cart-items")
-def get_cart_items(request:Request):
-    session=request.session
-    cart_items=session.get('cart',[])
-    total_quantity=session.get('total_quantity',0)
-    return { "total_quantity":total_quantity,"cart_items":cart_items}
+def get_cart(request: Request):
+    
+    cart = request.session.get('cart')
+    
+    detailed_cart = []
 
+    for item in cart:
+        product = product_collection.find_one({"_id": ObjectId(item['product_id'])})
+        if product:
+            detailed_cart.append({
+                "product_id": item['product_id'],
+                "quantity": item['quantity'],
+                "name": product['name'],
+                "price": product['price'],
+                "total_price": product['price'] * item['quantity']
+            })
 
-# @route.get("/cart")
-# def get_cart(request: Request, user=Depends(user_data)):
-#     cart = request.session.get('cart', [])
-#     detailed_cart = []
+    return{"cart":detailed_cart}
 
-#     for item in cart:
-#         product = product_collection.find_one({"_id": ObjectId(item['product_id'])})
-#         if product:
-#             detailed_cart.append({
-#                 "product_id": item['product_id'],
-#                 "quantity": item['quantity'],
-#                 "name": product['name'],
-#                 "price": product['price'],
-#                 "total_price": product['price'] * item['quantity']
-#             })
-
-#     return JSONResponse(content={"cart": detailed_cart})
+    # return JSONResponse(content={"cart": detailed_cart})
 
 @route.post("/checkout")
 def checkout(request: Request, user=Depends(user_data)):

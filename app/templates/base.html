@@ -22,12 +22,14 @@
                 <!-- <li><a class="active" href="about.html">About</a></li> -->
                 <li><a href="about.html">About</a></li>
                 <li><a href="/login">Sign In</a></li>
-                <li><a href="/api/logout">Logout</a></li>
+                <!-- <li><a href="/api/logout">Logout</a></li> --> 
+
+                <li><a class="btn btn-secondary" onclick="logout('{{token}}')">Logout</a></li>
                 <li id="lg-bag">
                     <a><i class="far fa-shopping-bag"></i></a>
                     {% if session.total_quantity %}
                     
-                        <span class="badge badge-pill badge-danger"><i><a href="">{{session.total_quantity}}</a></i></span>
+                        <span class="badge badge-pill badge-danger"><i><a href="/cart">{{session.total_quantity}}</a></i></span>
                     {% endif %}
 
                 </li>
@@ -39,23 +41,31 @@
             <!-- <i id="bar" class="fas fa-outdent"></i> -->
         </div>
     </section>
-    <!-- <section id="cart">
-        <h2>Your Cart</h2>
-        <table id="cart-items-table" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Product ID</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody> -->
-                <!-- Cart items will be appended here -->
-            <!-- </tbody>
-        </table>
-    </section> -->
-  
+    <script>
+        function logout(token) {
+             fetch(`/api/logout`, {
+                 method: 'GET',
+                 headers: {
+                    'Authorization': `Bearer ${token}`,
+                    
+                 },
+                
+             })
+             .then(response => response.json())
+             .then(data => {
+                
+                 if (data.success === true) {
+                    
+                    window.location.href='/login'
+                 } 
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                
+            });
+         }
+    </script>
+   
 
     {% block content %}
     {% endblock %}

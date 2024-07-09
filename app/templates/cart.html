@@ -2,27 +2,36 @@
 {% block title %}Myanmar Traditional Dress Website{% endblock %}
 {% block content %}
 
-    <div>
-            {% for item in cart %}
-            <li>
-                <p>{{ item.name }} - Quantity: {{ item.quantity }} - Price: ${{ item.price }} - Total: ${{ item.total_price }}</p>
-                <form action="/add-to-cart" method="post">
-                    <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                    <input type="hidden" name="action" value="increase">
-                    <button type="submit">Increase</button>
-                </form>
-                <form action="/add-to-cart" method="post">
-                    <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                    <input type="hidden" name="action" value="decrease">
-                    <button type="submit">Decrease</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-        <form action="/checkout" method="post">
-            <button type="submit">Checkout</button>
-        </form>
-    </div>
+        <h2>Cart Items</h2>
+       
+        {% if cart %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart["cart"] %}
+                   <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.total_price }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+
+
 {% endblock %}
 
 

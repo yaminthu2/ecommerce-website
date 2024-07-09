@@ -45,10 +45,37 @@
               Users
             </a>
           </li>
+          <li>
+            <a class="btn btn-secondary" onclick="logout('{{token}}')">Logout</a>
+          </li>
         </ul>
         <hr>
       
       </div>
+      <script>
+         function logout(token) {
+             fetch(`/api/logout`, {
+                 method: 'GET',
+                 headers: {
+                    'Authorization': `Bearer ${token}`,
+                    
+                 },
+                
+             })
+             .then(response => response.json())
+             .then(data => {
+                
+                 if (data.success === true) {
+                    
+                    window.location.href='/login'
+                 } 
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                
+            });
+         }
+      </script>
     
      
       {% block content %}

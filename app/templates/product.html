@@ -42,7 +42,7 @@
                  <button class="btn btn-secondary" onclick="updateQuantity(1)">+</button>
              </div>
              <!-- <button class="add-to-cart" data-product-id="{{ product.id }}" data-quantity="1">Add to Cart</button> -->
-             <button class="btn btn-primary mt-3" onclick="addToCart('{{ product._id }}')">Add to Cart</button>
+             <button class="btn btn-primary mt-3" onclick="addToCart('{{token}}','{{ product._id }}')">Add to Cart</button>
          </div>
      </div>
  </div>
@@ -106,29 +106,28 @@
          }
      }
     
-     function addToCart(productId) {
+     function addToCart(token,productId) {
          let quantity = parseInt(document.getElementById('quantity').value);
         
              fetch(`/api/cart/add-to-cart`, {
                  method: 'POST',
                  headers: {
-                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                  },
                  body: JSON.stringify({ product_id: productId,quantity:quantity}),
              })
              .then(response => response.json())
              .then(data => {
-                // console.log(data)
+                
                  if (data.success === true) {
-                    //  alert('Cart updated successfully!');
+                    
                      window.location.reload()
-                 } else {
-                    //  alert('Error updating cart.');
-                 }
+                 } 
              })
              .catch(error => {
                  console.error('Error:', error);
-                //  alert(' catch error updating cart .');
+                
             });
          }
    

@@ -14,9 +14,7 @@ route=APIRouter()
 templates=Jinja2Templates(directory="app/templates")
 
 
-# Admin credentials
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "Admin*123"
+
 
 class Register(BaseModel):
     username:str
@@ -101,7 +99,8 @@ def valid_password(password):
 
 #middleware   
 def user_data(request:Request):
-    bearer_token=request.cookies.get("Authorization")or request.headers.get("Authorization")
+    bearer_token=request.headers.get("Authorization")
+    print(bearer_token)
 
     if bearer_token==None:  #bearer token include key and value
         raise HTTPException(
@@ -149,6 +148,45 @@ def get_all_users():
         users_documents.append(document)
     return users_documents
 
+
+
+@route.get("/logout", status_code=status.HTTP_200_OK)
+def logout(request: Request, depend=Depends(user_data)):
+    try:
+        collection.update_one({"_id": ObjectId(depend["_id"])}, {"$set": {"is_login": False}})
+        request.session.clear()
+        return {"success":True}
+    except HTTPException as e:
+        return {"detail":e.detail}
+#find one user
+@route.get("/{id}",status_code=status.HTTP_200_OK)
+def get_one_user(id:str):
+    user=collection.find_one({"_id":ObjectId(id)})
+    if user==None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user object Id")
+    user["_id"]=str(user["_id"])
+
+    return user
+
+
+#user update
+@route.put("/{id}",status_code=status.HTTP_200_OK)
+def update_category(id:str,user:Register):
+    id=id.strip()
+    
+    valid_password(user.password)
+    pass_hash = PasswordHasher()
+    user.password = pass_hash.hash(user.password)
+    user=user.model_dump()
+    update_data=collection.update_one({"_id":ObjectId(id)},{"$set":user})
+    if update_data.matched_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user object Id")
+    return{"detail":"Successful update"}
+   
         
 @route.post("/register")
 async def registration(request: Request, register: Register):
@@ -177,6 +215,7 @@ async def registration(request: Request, register: Register):
         user_document = collection.insert_one(register.model_dump())
         payload = {"_id": str(user_document.inserted_id)}
         token = jwt.encode(payload, "website", algorithm="HS256")
+        
         request.session["token"]=token
         return {"detail":"successful register","success":True}
     except HTTPException as e:
@@ -245,17 +284,49 @@ async def change_password(request: Request,changePassword:ChangePassword.change_
             )
     except HTTPException as e:
         return templates.TemplateResponse("changepassword.html", {"request":request,"error_message": e.detail})
-    
-@route.get("/logout",status_code=status.HTTP_200_OK)
-def logout(user_id=Depends(user_data)):
-    collection.update_one({"_id":ObjectId(user_id["_id"])},{"$set":{"is_login":False}})
-    html_content = f"""
-    <html>
-        <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
-    </html>
-    """
-    response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK) 
-    return response
+
+
+@route.get("/clear")
+def session_clear(request:Request,depend=Depends(user_data)):
+    request.session
+
+
+
+
+# @route.get("/logout",status_code=status.HTTP_200_OK)
+# def logout(request:Request,depend=Depends(user_data)):
+
+#     try:
+#         collection.update_one({"_id":ObjectId(depend["_id"])},{"$set":{"is_login":False}})
+#     except HTTPException as e :
+#         return{"detail":e.detail,"seccess":False}
+
+
+
+   
+    # collection.update_one({"_id":ObjectId(depend["_id"])},{"$set":{"is_login":False}})
+    # html_content = f"""
+    # <html>
+    #     <meta http-equiv="refresh" content="0;url=http://localhost:8000/">
+    # </html>
+    # """
+    # response = HTMLResponse(content=html_content, status_code=status.HTTP_200_OK) 
+    # return response
+
+    # try:
+    #     token = request.session.pop("token", None)
+    #     if token:
+    #         # Decode token to get user_id
+    #         decoded_token = jwt.decode(token, "website", algorithms=["HS256"])
+    #         user_id = decoded_token.get("user_id")
+
+    #         # Update login status in database
+    #         collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"is_login": False}})
+
+    #     return RedirectResponse(url="/login?message=Logged out successfully", status_code=status.HTTP_303_SEE_OTHER)
+
+    # except Exception as e:
+    #     return templates.TemplateResponse("login.html", {"request": request, "error_message": "Failed to logout"})
     
 
 
