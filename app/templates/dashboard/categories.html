@@ -101,7 +101,10 @@
             
     toast.classList.add("show")
     toastbody.innerHTML=result.detail
-    window.location.reload()
+    if (result.success){
+      window.location.reload()
+    }
+    
   }
   
   async function deleteCategory(token,id){

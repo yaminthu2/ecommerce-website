@@ -27,7 +27,7 @@ templates=Jinja2Templates(directory="app/templates")
 
 app.mount("/static", StaticFiles(directory="static"),name="static")
 
-app.include_router(authentication.route,prefix="/api",tags=["/authentication"])
+app.include_router(authentication.route,prefix="/api/auth",tags=["/authentication"])
 app.include_router(category.route,prefix="/api/category",tags=["category"])
 app.include_router(product.route,prefix="/api/product",tags=["product"])
 app.include_router(image.route,prefix="/api/image",tags=["image"])
@@ -78,7 +78,7 @@ def change_password(request:Request):
     
 
 @app.get("/products/{id}")  
-def get_product(request:Request,id:str):
+def get_products(request:Request,id:str):
     product=get_one_product(id)
     token=request.session.get("token")
     return templates.TemplateResponse("product.html",{"request":request,"product":product,"session":request.session,"token":token})
@@ -89,13 +89,13 @@ def get_product(request:Request):
     token=request.session.get("token")
     return templates.TemplateResponse("cart.html",{"request":request,"session":request.session,"token":token,"cart":cart})
 
+@app.get("/checkout")  
+def get_checkout(request:Request):
+    token=request.session.get("token")
+    return templates.TemplateResponse("checkout.html",{"request":request,"session":request.session,"token":token})
 
-# @app.get("/orders")
-# def get_user_order(request: Request, current_user: dict = Depends(get_current_user)):
-#     print(current_user)
-#     if not current_user['is_admin'] and not current_user['success']:
-#         return RedirectResponse("/")
-#     return templates.TemplateResponse("dashboard/orders.html", {"request": request, "user": current_user})
+
+
 
 
 #  start dashboard 
@@ -167,9 +167,6 @@ def get_user_order(request:Request,current_user:dict=Depends(get_current_user)):
 def user_edit(request:Request,id:str,current_user:dict=Depends(get_current_user)):
     users=get_all_users()
     user=get_one_user(id)
-    # category=get_one_category(id)
-    # categories=get_all_categories()
-    # images=get_all_images()
     token=request.session.get("token")
     if not current_user['is_admin'] or  not current_user['success'] :
         return RedirectResponse("/")
@@ -190,16 +187,3 @@ with open(filename,'w') as json_file:
     
 
 
-    #  category = find_category(id)
-#     categories = find_categories()
-#     images = find_images()
-#     token = request.session.get("token")
-#     return templates.TemplateResponse(
-#         "dashboard/edit_category.html",
-#         {
-#             "request": request,
-#             "category": category,
-#             "categories": categories,
-#             "images": images,
-#             "token": token,
-#         },

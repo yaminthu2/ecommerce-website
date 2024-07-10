@@ -44,7 +44,7 @@
         const form = document.getElementById("form");
         const formData = new FormData(form);
         const data=Object.fromEntries(formData)
-        fetch('/api/register', {
+        fetch('/api/auth/register', {
             method: 'POST',
             headers: {
                 

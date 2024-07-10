@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> -->
     <link rel="stylesheet" href="/static/css/allcss.css">
 </head>
 <body>
@@ -17,14 +19,14 @@
             <ul id="navbar">
                 
                 <li><a href="/">Home</a></li>
-                <li><a href="shop.html">Shop</a></li>
-                <li><a href="blog.html">Blog</a></li>
+                <!-- <li><a href="shop.html">Shop</a></li>
+                <li><a href="blog.html">Blog</a></li> -->
                 <!-- <li><a class="active" href="about.html">About</a></li> -->
-                <li><a href="about.html">About</a></li>
+                <!-- <li><a href="about.html">About</a></li> -->
                 <li><a href="/login">Sign In</a></li>
                 <!-- <li><a href="/api/logout">Logout</a></li> --> 
 
-                <li><a class="btn btn-secondary" onclick="logout('{{token}}')">Logout</a></li>
+                <li><a class="btn btn" onclick="logout('{{token}}')">Logout</a></li>
                 <li id="lg-bag">
                     <a><i class="far fa-shopping-bag"></i></a>
                     {% if session.total_quantity %}
@@ -43,7 +45,7 @@
     </section>
     <script>
         function logout(token) {
-             fetch(`/api/logout`, {
+             fetch(`/api/auth/logout`, {
                  method: 'GET',
                  headers: {
                     'Authorization': `Bearer ${token}`,

@@ -30,8 +30,37 @@
         {% else %}
             <p>Your cart is empty.</p>
         {% endif %}
+        <a class="btn btn-secondary" style="color: blue;" onclick="createCheckout('{{token}}')">Checkout</a>
+        <script>
 
+        function createCheckout(token) {
+        
+        
+             fetch(`/api/cart/checkout`, {
+                 method: 'POST',
+                 headers: {
+                    'Authorization': `Bearer ${token}`,
+                    
+                 },
+                
+             })
+             .then(response => response.json())
+             .then(data => {
+                console.log(data)
+                
+                 if (data.success === true) {
+                    
+                     window.location.href='/checkout'
+                 } 
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                
+            });
+         }
+        </script>
 
+      
 {% endblock %}
 
 

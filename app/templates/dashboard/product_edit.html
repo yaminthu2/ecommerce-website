@@ -1,86 +1,92 @@
 {% extends 'dashboard/dashboard.html' %}
 {% block content %}
-    <div class="w-100 p-3">
-        <div>
-            <h2>Edit product</h2>
-            <hr class="border-2">
-        </div>
-        <form id="editProduct">
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
-            </div>
-            <div class="form-group">
-              <select class="form-select" aria-label="Default select example">
-                <option value="">Select the category</option>
-                {% for category in categories%}
-                {% if product.category._id == category._id%}
-                <option value="{{category._id}}" selected >{{category.name}}</option>
-                {% else %}
-                <option value="{{category._id}}" >{{category.name}}</option>
-                {% endif %}
-                {%endfor%}
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="description">Description</label>
-              <input type="text" class="form-control" id="description" name="description" value="{{ product.description }}" required>
-            </div>
-            <div class="form-group">
-              <label for="item">Item</label>
-              <input type="text" class="form-control" id="item" name="item" value="{{ product.item }}" required>
-            </div>
-            <div class="form-group">
-              <label for="price">Price</label>
-              <input type="text" class="form-control" id="price" name="description" value="{{ product.price }}" required>
-            </div>
-            <div class="form-group">
-              <select
-              class="form-select"
-              multiple
-              id="images"
-              aria-label="Floating label select example"
-              name="images"
-              style="height: 150px"
-            >
-              {% for image in images %}
-              <option value="{{image._id}}">{{image.name}}</option>
-              {% endfor %}
-            </select>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="feature_product">
-              <label class="form-check-label" for="flexCheckDefault">
-                Feature Product
-              </label>
-            </div>
-            <a class="btn btn-primary" onclick="createProduct('{{token}}','{{product._id}}')">Save</a>
-          </form>
-
+<div class="w-100 p-3">
+  <div>
+    <h2>Edit product</h2>
+    <hr class="border-2">
+  </div>
+  <form id="editProduct">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
     </div>
-    <script>
-        async function createProduct(token,id){
-        const form = document.getElementById("editProduct");
-        const formData = new FormData(form);
-        const data=Object.fromEntries(formData)
-        const selectedOptions = document.querySelectorAll("#images :checked");
-        const selectedImages = [...selectedOptions].map((option) => option.value);
-        data.images=selectedImages
-        
-        const result=  await putMethod(`/api/product/${id}`,data,token)
-        const toast=document.getElementById('toast')
-        const toastbody=document.getElementById('toast-body')
-                
-        toast.classList.add("show")
-        toastbody.innerHTML=result.detail
-        window.location.href="/products"
-  } 
+    <div class="form-group">
+      <select class="form-select" aria-label="Default select example" name="category">
+        <!-- <option value="">Select the category</option> -->
+        {% for category in categories%}
+        {% if product.category._id == category._id%}
+        <option value="{{category._id}}" selected>{{category.name}}</option>
+        {% else %}
+        <option value="{{category._id}}">{{category.name}}</option>
+        {% endif %}
+        {%endfor%}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input type="text" class="form-control" id="description" name="description" value="{{ product.description }}"
+        required>
+    </div>
+    <div class="form-group">
+      <label for="item">Item</label>
+      <input type="number" class="form-control" id="item" name="item" value="{{ product.item }}" required>
+    </div>
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" required>
+    </div>
+    <div class="form-group">
+      <select class="form-select" multiple id="images" aria-label="Floating label select example" name="images"
+        style="height: 150px">
+        {% for image in images %}
+        {% if 'product' in image.img_url %}
+        <option value="{{image._id}}">{{image.name}}</option>
+        {%endif%}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="flexCheckDefault" name="feature_product">
+      <label class="form-check-label" for="flexCheckDefault">
+        Feature Product
+      </label>
+    </div>
+    <a class="btn btn-primary" onclick="editProduct('{{token}}','{{product._id}}')">Save</a>
+  </form>
 
-    </script>
-  
+</div>
+<script>
+  async function editProduct(token, id) {
+    const form = document.getElementById("editProduct");
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData)
+    if (data.feature_product){
+        data.feature_product=true
+    }
     
-    
+
+    const selectedOptions = document.querySelectorAll("#images :checked");
+    const selectedImages = [...selectedOptions].map((option) => option.value);
+    data.images = selectedImages
    
+    console.log(data.images)
+
+    const result=  await putMethod(`/api/product/${id}`,data,token)
+    const toast=document.getElementById('toast')
+    const toastbody=document.getElementById('toast-body')
+
+    toast.classList.add("show")
+    toastbody.innerHTML=result.detail
+    if (result.success){
+      window.location.href="/products"
+    }
+
+  }
+
+</script>
+
+
+
+
 
 {% endblock %}
-

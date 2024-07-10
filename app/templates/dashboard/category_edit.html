@@ -57,7 +57,10 @@
                 
         toast.classList.add("show")
         toastbody.innerHTML=result.detail
-        window.location.href="/categories"
+        if(result.success){
+          window.location.href="/categories"
+        }
+        
   } 
 
     </script>

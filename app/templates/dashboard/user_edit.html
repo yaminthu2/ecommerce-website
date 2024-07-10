@@ -55,7 +55,7 @@
         const data=Object.fromEntries(formData)
         
         
-        const result=  await putMethod(`/api/${id}`,data,token)
+        const result=  await putMethod(`/api/auth/${id}`,data,token)
         const toast=document.getElementById('toast')
         const toastbody=document.getElementById('toast-body')
                 

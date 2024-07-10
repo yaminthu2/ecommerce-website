@@ -48,63 +48,63 @@
  </div>
 
  <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-    const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            event.preventDefault();
-            const productId = button.dataset.productId;
-            const quantity = button.dataset.quantity;
+//     document.addEventListener('DOMContentLoaded', (event) => {
+//     const addToCartButtons = document.querySelectorAll('.add-to-cart');
+//     addToCartButtons.forEach(button => {
+//         button.addEventListener('click', async (event) => {
+//             event.preventDefault();
+//             const productId = button.dataset.productId;
+//             const quantity = button.dataset.quantity;
 
-            const response = await fetch('/api/cart/add-to-cart', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                document.querySelector('#lg-bag .badge').textContent = data.total_quantity;
+//             const response = await fetch('/api/cart/add-to-cart', {
+//                 method: 'POST',
+//                 headers: {
+//                     'Authorization': `Bearer ${token}`,
+//                     'Content-Type': 'application/x-www-form-urlencoded'
+//                 },
+//                 body: new URLSearchParams({
+//                     product_id: productId,
+//                     quantity: quantity
+//                 })
+//             });
+//             if (response.ok) {
+//                 const data = await response.json();
+//                 document.querySelector('#lg-bag .badge').textContent = data.total_quantity;
 
-                // Fetch updated cart items
-                const cartResponse = await fetch('/api/cart/cart-items');
-                if (cartResponse.ok) {
-                    const cartData = await cartResponse.json();
-                    updateCartTable(cartData.cart_items);
-                }
-            }
-        });
-    });
-});
+//                 // Fetch updated cart items
+//                 const cartResponse = await fetch('/api/cart/cart-items');
+//                 if (cartResponse.ok) {
+//                     const cartData = await cartResponse.json();
+//                     updateCartTable(cartData.cart_items);
+//                 }
+//             }
+//         });
+//     });
+// });
 
-    function updateCartTable(cartItems) {
-        const cartItemsTable = document.querySelector('#cart-items-table tbody');
-        cartItemsTable.innerHTML = '';  // Clear existing rows
-        cartItems.forEach(item => {
-            const row = `
-                <tr>
-                    <td>${item.product_id}</td>
-                    <td>${item.quantity}</td>
-                    <td>$${item.price}</td>
-                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
-                </tr>
-            `;
-            cartItemsTable.insertAdjacentHTML('beforeend', row);
-        });
-    }
+//     function updateCartTable(cartItems) {
+//         const cartItemsTable = document.querySelector('#cart-items-table tbody');
+//         cartItemsTable.innerHTML = '';  // Clear existing rows
+//         cartItems.forEach(item => {
+//             const row = `
+//                 <tr>
+//                     <td>${item.product_id}</td>
+//                     <td>${item.quantity}</td>
+//                     <td>$${item.price}</td>
+//                     <td>$${(item.price * item.quantity).toFixed(2)}</td>
+//                 </tr>
+//             `;
+//             cartItemsTable.insertAdjacentHTML('beforeend', row);
+//         });
+//     }
 
-     function updateQuantity(change) {
-         let quantityInput = document.getElementById('quantity');
-         let currentQuantity = parseInt(quantityInput.value);
-         if (currentQuantity + change >= 1) {
-             quantityInput.value = currentQuantity + change;
-         }
-     }
+//      function updateQuantity(change) {
+//          let quantityInput = document.getElementById('quantity');
+//          let currentQuantity = parseInt(quantityInput.value);
+//          if (currentQuantity + change >= 1) {
+//              quantityInput.value = currentQuantity + change;
+//          }
+//      }
     
      function addToCart(token,productId) {
          let quantity = parseInt(document.getElementById('quantity').value);

@@ -28,22 +28,25 @@ class Products(BaseModel):
         if not value:
            raise HTTPException(
                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-               detail="Please enter the data")
+               detail="please enter the data")
         return value
 
 
 #create product data
 @route.post("/",status_code=status.HTTP_201_CREATED)
 def get_create_product(products:Products,depen=Depends(user_data)):
-    product=products.model_dump()
-    product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
-    images_dbref=[]
-    for image in product["images"]:
-        images=DBRef("images",ObjectId(image),"ecommerce")
-        images_dbref.append(images)
-    product["images"]=images_dbref
-    product_collection.insert_one(product)
-    return{"detail":"Successful create product"}
+   try:
+        product=products.model_dump()
+        product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
+        images_dbref=[]
+        for image in product["images"]:
+            images=DBRef("images",ObjectId(image),"ecommerce")
+            images_dbref.append(images)
+        product["images"]=images_dbref
+        product_collection.insert_one(product)
+        return{"detail":"successful create product","success":True}
+   except:
+       return{"detail":"please insert the data","success":False}
     
 
 # find all products 
@@ -82,20 +85,24 @@ def get_one_product(id:str,user=Depends(user_data)):
 #product update  
 @route.put("/{id}",status_code=status.HTTP_200_OK)
 def update(id:str,products:Products):
-    product=products.model_dump()
-    product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
-    images=[]
-    for image in product["images"]:
-        image=DBRef("images",ObjectId(image),"ecommerce")
-        images.append(image)
-    product["images"]=images
-    document=product_collection.find_one_and_update({"_id":ObjectId(id.strip())},{"$set":product})
-    if document==None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid product Id")
-    return{"detail":"Successful product update"}
+    try:
+        product=products.model_dump()
+        product["category"]=DBRef("categories",ObjectId(product["category"]),"ecommerce")
+        images=[]
+        for image in product["images"]:
+            image=DBRef("images",ObjectId(image),"ecommerce")
+            images.append(image)
+        product["images"]=images
+        document=product_collection.find_one_and_update({"_id":ObjectId(id.strip())},{"$set":product})
+        if document==None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid product Id")
+        return{"detail":"Successful product update","success":True}
+    except:
+        return{"detail":" please enter the data ","success":False}
                        
+   
 #product delete
 @route.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)  
 def delete(id:str,depend=Depends(user_data)):

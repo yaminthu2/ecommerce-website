@@ -48,7 +48,7 @@
         const formData = new FormData(form);
         const data=Object.fromEntries(formData)
         
-        fetch('/api/login', {
+        fetch('/api/auth/login', {
             method: 'POST',
             headers: {
                 

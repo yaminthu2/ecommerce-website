@@ -97,7 +97,9 @@
               style="height: 150px"
             >
               {% for image in images %}
+              {% if 'product' in image.img_url %}
               <option value="{{image._id}}">{{image.name}}</option>
+              {%endif%}
               {% endfor %}
             </select>
             </div>
@@ -142,10 +144,11 @@
             
     toast.classList.add("show")
     toastbody.innerHTML=result.detail
-    window.location.reload()
+    if (result.success){
+      window.location.reload()
+    }
+    
   }
-  
-
   async function productDelete(token,id){
     const result=await deleteMethod(`/api/product/${id}`,token)
     const toast=document.getElementById('toast')
@@ -153,7 +156,6 @@
     toast.classList.add("show")
     toastbody.innerHTML=result.detail  
     window.location.reload()
-      
   }
   </script>
   {% endblock%}

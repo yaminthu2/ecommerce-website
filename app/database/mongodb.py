@@ -11,7 +11,7 @@ try:
     product_collection=db["products"]
     image_collection=db["images"]
     # checkout_collection=db["checkout"]
-    carts_collection=db["carts"]
+    checkout_collection=db["checkouts"]
    
 
 

@@ -100,7 +100,7 @@ def valid_password(password):
 #middleware   
 def user_data(request:Request):
     bearer_token=request.headers.get("Authorization")
-    print(bearer_token)
+    
 
     if bearer_token==None:  #bearer token include key and value
         raise HTTPException(

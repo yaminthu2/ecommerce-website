@@ -94,7 +94,7 @@
       data.is_admin=true
     }
   
-    const result=  await postMethod("/api/register",data,token)
+    const result=  await postMethod("/api/auth/register",data,token)
     const toast=document.getElementById('toast')
     const toastbody=document.getElementById('toast-body')
             

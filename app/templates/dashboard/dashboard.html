@@ -46,7 +46,7 @@
             </a>
           </li>
           <li>
-            <a class="btn btn-secondary" onclick="logout('{{token}}')">Logout</a>
+            <a class="btn btn" onclick="logout('{{token}}')">Logout</a>
           </li>
         </ul>
         <hr>
@@ -54,7 +54,7 @@
       </div>
       <script>
          function logout(token) {
-             fetch(`/api/logout`, {
+             fetch(`/api/auth/logout`, {
                  method: 'GET',
                  headers: {
                     'Authorization': `Bearer ${token}`,
@@ -76,6 +76,7 @@
             });
          }
       </script>
+     
     
      
       {% block content %}
@@ -83,14 +84,15 @@
         
       
       {% endblock%}
-      <div class="toast position-fixed end-0 bottom-0 " id="toast"  role="alert" aria-live="assertive" aria-atomic="true" >
+      <div class="toast position-fixed " id="toast"  role="alert" aria-live="assertive" aria-atomic="true" style="top: 10px; right: 10px;">
         <div class="toast-header">
           <!-- <img src="..." class="rounded me-2" alt="..."> -->
-          <strong class="me-auto">Bootstrap</strong>
+          <strong class="me-auto"> Message</strong>
           <!-- <small class="text-muted">11 mins ago</small> -->
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body" id="toast-body">
+         
             
         </div>
       </div>
